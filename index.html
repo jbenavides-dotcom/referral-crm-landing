@@ -641,6 +641,12 @@
               <input type="email" name="email" required placeholder="correo@ejemplo.com">
             </div>
           </div>
+          <div class="form-row full">
+            <div class="form-group">
+              <label>Empresa donde trabaja el Referido</label>
+              <input type="text" name="empresaReferido" placeholder="Nombre de la empresa">
+            </div>
+          </div>
           <div class="form-row">
             <div class="form-group">
               <label>Telefono</label>
@@ -668,8 +674,7 @@
                 <option>Libertario</option>
                 <option>LPET</option>
                 <option>Green Hub</option>
-                <option>La Palma</option>
-                <option>El Tucan</option>
+                <option>La Palma y el Tucan</option>
                 <option>Otra</option>
               </select>
             </div>
@@ -1025,6 +1030,7 @@
         empresa: form.empresa.value,
         tipoReferido: form.tipoReferido.value,
         nombre: form.nombre.value.trim(),
+        empresaReferido: form.empresaReferido.value.trim(),
         email: form.email.value.trim(),
         telefono: form.telefono.value.trim(),
         pais: form.pais.value.trim(),
