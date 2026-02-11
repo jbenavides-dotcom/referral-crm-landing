@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Referral CRM - Green Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* ===== RESET & VARIABLES ===== */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --negro: #160e08;
+      --blanco: #ffffff;
+      --verde-principal: #47a179;
+      --verde-oscuro: #317269;
+      --verde-claro: #6bd1a1;
+      --verde-azulado-oscuro: #123840;
+      --verde-azulado-medio: #255a5b;
+      --verde-medio: #66bb95;
+      --texto-secundario: #160e08cc;
+      --texto-terciario: #160e0899;
+      --borde-suave: #160e0833;
+      --fondo-suave: #f0faf5;
+      --rojo-error: #e74c3c;
+      --rojo-fondo: #fdf0ef;
+      --sombra-card: 0 4px 32px rgba(18,56,64,.10);
+      --sombra-card-hover: 0 16px 48px rgba(18,56,64,.18);
+      --ease: cubic-bezier(.645,.045,.355,1);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter Tight', sans-serif;
+      font-weight: 400;
+      color: var(--negro);
+      background: var(--blanco);
+      line-height: 1.4;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ===== NAV ===== */
+    nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 2.5rem;
+      background: rgba(255,255,255,.85);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--borde-suave);
+      position: sticky; top: 0; z-index: 50;
+    }
+    .nav-brand { display: flex; align-items: center; gap: .75rem; text-decoration: none; }
+    .nav-logo-img { height: 2rem; width: auto; object-fit: contain; }
+    .nav-logo {
+      width: 2.25rem; height: 2.25rem; background: var(--verde-principal);
+      border-radius: .625rem; display: flex; align-items: center; justify-content: center;
+    }
+    .nav-logo svg { width: 1.25rem; height: 1.25rem; fill: var(--blanco); }
+    .nav-title { font-family: 'Archivo', sans-serif; font-weight: 500; font-size: 1.125rem; color: var(--negro); }
+    .nav-badge {
+      font-size: .7rem; font-weight: 600; text-transform: uppercase; letter-spacing: .05rem;
+      background: var(--verde-azulado-oscuro); color: var(--verde-claro);
+      padding: .3rem .75rem; border-radius: 50rem;
+    }
+
+    /* ===== HERO ===== */
+    .hero {
+      background: var(--verde-azulado-oscuro);
+      padding: 6rem 2.5rem 5rem; text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: ''; position: absolute; top: -40%; left: -30%; width: 160%; height: 180%;
+      background:
+        radial-gradient(ellipse at 20% 40%, rgba(107,209,161,.12) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 60%, rgba(71,161,121,.10) 0%, transparent 45%),
+        radial-gradient(ellipse at 50% 100%, rgba(37,90,91,.25) 0%, transparent 40%);
+      pointer-events: none;
+    }
+    .hero::after {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(107,209,161,.3), transparent);
+    }
+    .hero-content { position: relative; z-index: 1; max-width: 780px; margin: 0 auto; }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: .5rem;
+      font-weight: 600; font-size: .8rem; text-transform: uppercase; letter-spacing: .1rem;
+      color: var(--verde-claro); background: rgba(107,209,161,.12);
+      padding: .5rem 1.25rem; border-radius: 50rem; border: 1px solid rgba(107,209,161,.2);
+      margin-bottom: 2rem;
+    }
+    .hero-eyebrow svg { width: .875rem; height: .875rem; fill: var(--verde-claro); }
+    .hero h1 {
+      font-family: 'Archivo', sans-serif; font-weight: 400;
+      font-size: 4.5rem; line-height: 90%; letter-spacing: -.2rem;
+      color: var(--blanco); margin-bottom: 1.5rem;
+    }
+    .hero h1 span { color: var(--verde-claro); }
+    .hero-subtitle {
+      font-size: 1.25rem; line-height: 160%; color: rgba(255,255,255,.65);
+      max-width: 560px; margin: 0 auto 2.5rem;
+    }
+    .hero-cta-group { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+    .hero-microcopy { margin-top: 1.25rem; font-size: .8rem; color: rgba(255,255,255,.4); }
+
+    /* ===== BOTONES ===== */
+    .btn {
+      display: inline-flex; align-items: center; gap: .5rem;
+      padding: 1rem 1.75rem; border-radius: 50rem;
+      font-family: 'Archivo', sans-serif; font-weight: 500; font-size: .95rem;
+      text-decoration: none; border: none; cursor: pointer;
+      transition: all .4s var(--ease);
+    }
+    .btn:hover { transform: translate3d(0,-2px,0); }
+    .btn svg { width: 1.125rem; height: 1.125rem; transition: transform .3s ease; }
+    .btn:hover svg { transform: translateX(3px); }
+    .btn-primary { background: var(--verde-principal); color: var(--negro); }
+    .btn-primary:hover { background: var(--verde-claro); box-shadow: 0 8px 24px rgba(71,161,121,.3); }
+    .btn-primary svg { fill: var(--negro); }
+    .btn-ghost { background: rgba(255,255,255,.08); color: var(--blanco); border: 1px solid rgba(255,255,255,.15); }
+    .btn-ghost:hover { background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.3); }
+    .btn-ghost svg { fill: var(--blanco); }
+    .btn-dark { background: var(--verde-azulado-oscuro); color: var(--blanco); }
+    .btn-dark:hover { background: var(--verde-azulado-medio); box-shadow: 0 8px 24px rgba(18,56,64,.3); }
+    .btn-dark svg { fill: var(--blanco); }
+    .btn-large { padding: 1.125rem 2rem; font-size: 1rem; }
+
+    /* ===== SECCIONES COMUNES ===== */
+    .container { max-width: 1100px; margin: 0 auto; }
+    .section-eyebrow {
+      font-weight: 600; font-size: .75rem; text-transform: uppercase;
+      letter-spacing: .1rem; color: var(--verde-oscuro); margin-bottom: .75rem;
+    }
+    .section-title {
+      font-family: 'Archivo', sans-serif; font-weight: 400;
+      font-size: 2.75rem; line-height: 95%; letter-spacing: -.12rem;
+      color: var(--negro); margin-bottom: 1rem;
+    }
+    .section-subtitle {
+      font-size: 1.1rem; line-height: 160%; color: var(--texto-secundario);
+      max-width: 600px; margin-bottom: 3rem;
+    }
+
+    /* ===== VALOR / BENEFICIOS ===== */
+    .value-section { padding: 5rem 2.5rem; background: var(--fondo-suave); }
+    .value-video {
+      margin-bottom: 3rem; border-radius: 1.5rem; overflow: hidden;
+      position: relative; max-width: 1100px; margin-left: auto; margin-right: auto;
+      box-shadow: 0 8px 40px rgba(18,56,64,.12);
+    }
+    .value-video video {
+      display: block; width: 100%; height: auto;
+      max-height: 380px; object-fit: cover;
+    }
+    .stats-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem; }
+    .stat-card {
+      background: var(--blanco); border-radius: 1.25rem; padding: 2rem 1.75rem;
+      border: 1px solid var(--borde-suave); transition: all .4s var(--ease);
+    }
+    .stat-card:hover { box-shadow: var(--sombra-card); transform: translate3d(0,-2px,0); }
+    .stat-icon {
+      width: 2.75rem; height: 2.75rem; border-radius: .75rem;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 1.25rem; background: rgba(71,161,121,.1);
+    }
+    .stat-icon svg { width: 1.375rem; height: 1.375rem; fill: var(--verde-principal); }
+    .stat-card h4 { font-family: 'Archivo', sans-serif; font-weight: 500; font-size: 1.15rem; margin-bottom: .5rem; line-height: 120%; }
+    .stat-card p { font-size: .9rem; color: var(--texto-secundario); line-height: 150%; }
+
+    /* ===== ACCIONES CTA ===== */
+    .actions-section { padding: 5rem 2.5rem; }
+    .actions-header { text-align: center; margin-bottom: 3rem; }
+    .actions-header .section-subtitle { margin-left: auto; margin-right: auto; }
+    .actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; max-width: 1100px; margin: 0 auto; }
+    .action-card {
+      border-radius: 1.5rem; padding: 2.5rem 2.25rem 2.75rem;
+      position: relative; overflow: hidden; transition: all .4s var(--ease);
+    }
+    .action-card:hover { transform: translate3d(0,-4px,0); box-shadow: var(--sombra-card-hover); }
+    .action-card-new { background: var(--verde-azulado-oscuro); color: var(--blanco); }
+    .action-card-new::before {
+      content: ''; position: absolute; top: -30%; right: -20%; width: 60%; height: 80%;
+      background: radial-gradient(ellipse, rgba(107,209,161,.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .action-card-update { background: linear-gradient(135deg,#e8f8f0,#d4f1e4); color: var(--negro); border: 1px solid rgba(71,161,121,.15); }
+    .action-icon {
+      width: 3.25rem; height: 3.25rem; border-radius: 1rem;
+      display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;
+    }
+    .action-card-new .action-icon { background: rgba(107,209,161,.12); }
+    .action-card-update .action-icon { background: rgba(18,56,64,.08); }
+    .action-icon svg { width: 1.625rem; height: 1.625rem; }
+    .action-card-new .action-icon svg { fill: var(--verde-claro); }
+    .action-card-update .action-icon svg { fill: var(--verde-azulado-oscuro); }
+    .action-card h3 { font-family: 'Archivo', sans-serif; font-weight: 500; font-size: 1.75rem; line-height: 100%; letter-spacing: -.05rem; margin-bottom: .875rem; }
+    .action-card p { font-size: .95rem; line-height: 155%; margin-bottom: 2rem; }
+    .action-card-new p { color: rgba(255,255,255,.6); }
+    .action-card-update p { color: var(--texto-secundario); }
+    .action-features { list-style: none; margin-bottom: 2rem; }
+    .action-features li { display: flex; align-items: center; gap: .625rem; font-size: .85rem; font-weight: 500; padding: .375rem 0; }
+    .action-card-new .action-features li { color: rgba(255,255,255,.55); }
+    .action-card-update .action-features li { color: var(--texto-secundario); }
+    .action-features li svg { width: 1rem; height: 1rem; flex-shrink: 0; }
+    .action-card-new .action-features li svg { fill: var(--verde-claro); }
+    .action-card-update .action-features li svg { fill: var(--verde-principal); }
+
+    /* ===== COMO FUNCIONA ===== */
+    .process-section { padding: 5rem 2.5rem; background: var(--verde-azulado-oscuro); position: relative; overflow: hidden; }
+    .process-section::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(107,209,161,.2), transparent);
+    }
+    .process-header { text-align: center; margin-bottom: 3.5rem; }
+    .process-header .section-eyebrow { color: var(--verde-claro); }
+    .process-header .section-title { color: var(--blanco); margin-bottom: .75rem; }
+    .process-header .section-subtitle { color: rgba(255,255,255,.55); margin-left: auto; margin-right: auto; }
+    .process-steps { display: grid; grid-template-columns: repeat(3,1fr); gap: 2rem; max-width: 1100px; margin: 0 auto; }
+    .process-step {
+      text-align: center; padding: 2rem 1.5rem; border-radius: 1.25rem;
+      background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.06);
+      transition: all .4s var(--ease);
+    }
+    .process-step:hover { background: rgba(255,255,255,.07); border-color: rgba(107,209,161,.15); }
+    .step-number {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 2.5rem; height: 2.5rem; border-radius: 50%;
+      background: rgba(107,209,161,.12); color: var(--verde-claro);
+      font-family: 'Archivo', sans-serif; font-weight: 600; font-size: 1rem;
+      margin-bottom: 1.25rem;
+    }
+    .process-step h4 { font-family: 'Archivo', sans-serif; font-weight: 500; font-size: 1.125rem; color: var(--blanco); margin-bottom: .625rem; }
+    .process-step p { font-size: .875rem; line-height: 155%; color: rgba(255,255,255,.5); }
+
+    /* ===== CTA FINAL ===== */
+    .cta-final { padding: 5rem 2.5rem; text-align: center; background: var(--fondo-suave); }
+    .cta-final-inner { max-width: 640px; margin: 0 auto; }
+    .cta-final h2 { font-family: 'Archivo', sans-serif; font-weight: 400; font-size: 2.5rem; line-height: 95%; letter-spacing: -.1rem; color: var(--negro); margin-bottom: 1rem; }
+    .cta-final p { font-size: 1.05rem; line-height: 160%; color: var(--texto-secundario); margin-bottom: 2rem; }
+    .cta-final-buttons { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+
+    /* ===== FOOTER ===== */
+    footer { background: var(--negro); padding: 0; text-align: center; }
+    .footer-logos {
+      padding: 2.5rem 2.5rem 1.5rem;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+    .footer-logos-label {
+      font-size: .7rem; font-weight: 600; text-transform: uppercase; letter-spacing: .1rem;
+      color: rgba(255,255,255,.25); margin-bottom: 1.5rem;
+    }
+    .footer-logos-grid {
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
+      gap: 1.75rem 2.5rem; max-width: 900px; margin: 0 auto;
+    }
+    .footer-logos-grid img {
+      height: 2.75rem; width: auto; object-fit: contain;
+      opacity: .45; filter: brightness(0) invert(1);
+      transition: opacity .3s ease;
+    }
+    .footer-logos-grid img:hover { opacity: .85; }
+    .footer-bottom {
+      padding: 1.5rem 2.5rem;
+      display: flex; align-items: center; justify-content: center; gap: .625rem;
+    }
+    .footer-logo {
+      width: 1.5rem; height: 1.5rem; background: var(--verde-principal);
+      border-radius: .375rem; display: flex; align-items: center; justify-content: center;
+    }
+    .footer-logo svg { width: .875rem; height: .875rem; fill: var(--blanco); }
+    .footer-text { font-size: .8rem; color: rgba(255,255,255,.4); }
+    .footer-text strong { font-weight: 500; color: rgba(255,255,255,.6); }
+
+    /* ============================================
+       MODAL SYSTEM
+       ============================================ */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(22,14,8,.5);
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; visibility: hidden;
+      transition: opacity .35s var(--ease), visibility .35s;
+      padding: 1.5rem;
+    }
+    .modal-overlay.active { opacity: 1; visibility: visible; }
+
+    .modal {
+      background: var(--blanco); border-radius: 1.5rem;
+      width: 100%; max-width: 660px; max-height: 90vh;
+      display: flex; flex-direction: column;
+      transform: translateY(20px) scale(.98);
+      transition: transform .35s var(--ease);
+      box-shadow: 0 32px 64px rgba(18,56,64,.2);
+    }
+    .modal-overlay.active .modal { transform: translateY(0) scale(1); }
+
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.5rem 2rem; border-bottom: 1px solid var(--borde-suave);
+      flex-shrink: 0;
+    }
+    .modal-header h2 { font-family: 'Archivo', sans-serif; font-weight: 500; font-size: 1.35rem; letter-spacing: -.03rem; }
+    .modal-close {
+      width: 2.25rem; height: 2.25rem; border-radius: .625rem;
+      border: 1px solid var(--borde-suave); background: var(--blanco);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all .25s ease;
+    }
+    .modal-close:hover { background: var(--fondo-suave); border-color: var(--verde-principal); }
+    .modal-close svg { width: 1rem; height: 1rem; fill: var(--texto-secundario); }
+
+    .modal-body { padding: 2rem; overflow-y: auto; flex: 1; }
+
+    /* ===== FORM STYLES ===== */
+    .form-section-title {
+      font-family: 'Archivo', sans-serif; font-weight: 500; font-size: .85rem;
+      text-transform: uppercase; letter-spacing: .08rem; color: var(--verde-oscuro);
+      margin-bottom: 1rem; padding-bottom: .5rem;
+      border-bottom: 1px solid rgba(71,161,121,.15);
+    }
+    .form-section-title:not(:first-child) { margin-top: 2rem; }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+    .form-row.full { grid-template-columns: 1fr; }
+
+    .form-group { display: flex; flex-direction: column; gap: .375rem; }
+    .form-group label {
+      font-size: .8rem; font-weight: 500; color: var(--negro);
+    }
+    .form-group label .req { color: var(--rojo-error); margin-left: .15rem; }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      font-family: 'Inter Tight', sans-serif; font-size: .9rem; font-weight: 400;
+      padding: .75rem 1rem; border-radius: .75rem;
+      border: 1.5px solid var(--borde-suave); background: var(--blanco);
+      color: var(--negro); outline: none;
+      transition: border-color .25s ease, box-shadow .25s ease;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: var(--verde-principal);
+      box-shadow: 0 0 0 3px rgba(71,161,121,.12);
+    }
+    .form-group input.error,
+    .form-group select.error,
+    .form-group textarea.error {
+      border-color: var(--rojo-error);
+      box-shadow: 0 0 0 3px rgba(231,76,60,.1);
+    }
+    .form-group textarea { resize: vertical; min-height: 80px; }
+    .form-group select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath fill='%23160e08' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1rem center; padding-right: 2.5rem; }
+    .form-group .field-hint { font-size: .75rem; color: var(--texto-terciario); }
+    .form-group .field-error { font-size: .75rem; color: var(--rojo-error); display: none; }
+    .form-group .field-error.visible { display: block; }
+
+    .modal-footer {
+      padding: 1.25rem 2rem; border-top: 1px solid var(--borde-suave);
+      display: flex; align-items: center; justify-content: flex-end; gap: 1rem;
+      flex-shrink: 0;
+    }
+    .btn-submit {
+      display: inline-flex; align-items: center; gap: .5rem;
+      padding: .875rem 2rem; border-radius: 50rem;
+      font-family: 'Archivo', sans-serif; font-weight: 500; font-size: .95rem;
+      background: var(--verde-principal); color: var(--negro);
+      border: none; cursor: pointer; transition: all .4s var(--ease);
+    }
+    .btn-submit:hover:not(:disabled) { background: var(--verde-claro); transform: translate3d(0,-2px,0); box-shadow: 0 8px 24px rgba(71,161,121,.3); }
+    .btn-submit:disabled { opacity: .5; cursor: not-allowed; }
+    .btn-submit svg { width: 1.125rem; height: 1.125rem; fill: var(--negro); }
+    .btn-cancel {
+      padding: .875rem 1.5rem; border-radius: 50rem;
+      font-family: 'Archivo', sans-serif; font-weight: 500; font-size: .95rem;
+      background: transparent; color: var(--texto-secundario);
+      border: 1px solid var(--borde-suave); cursor: pointer; transition: all .25s ease;
+    }
+    .btn-cancel:hover { background: var(--fondo-suave); }
+
+    /* ===== MODAL STATES ===== */
+    .modal-state { display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 3rem 2rem; min-height: 300px; }
+    .modal-state.active { display: flex; }
+
+    .state-icon {
+      width: 5rem; height: 5rem; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+    .state-icon svg { width: 2.5rem; height: 2.5rem; }
+    .state-icon-success { background: rgba(71,161,121,.12); }
+    .state-icon-success svg { fill: var(--verde-principal); }
+    .state-icon-error { background: var(--rojo-fondo); }
+    .state-icon-error svg { fill: var(--rojo-error); }
+
+    .state-title { font-family: 'Archivo', sans-serif; font-weight: 500; font-size: 1.5rem; margin-bottom: .5rem; }
+    .state-msg { font-size: .95rem; color: var(--texto-secundario); line-height: 155%; margin-bottom: 1.5rem; max-width: 400px; }
+
+    /* Spinner */
+    .spinner { width: 3rem; height: 3rem; border: 3px solid var(--borde-suave); border-top-color: var(--verde-principal); border-radius: 50%; animation: spin .8s linear infinite; margin-bottom: 1.5rem; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 991px) {
+      .hero { padding: 4.5rem 2rem 4rem; }
+      .hero h1 { font-size: 3.5rem; }
+      .section-title { font-size: 2.25rem; }
+      .stats-row { gap: 1rem; }
+      .process-steps { gap: 1.25rem; }
+    }
+    @media (max-width: 767px) {
+      nav { padding: .875rem 1.25rem; }
+      .hero { padding: 3.5rem 1.25rem 3rem; }
+      .hero h1 { font-size: 2.5rem; letter-spacing: -.1rem; }
+      .hero-subtitle { font-size: 1.05rem; }
+      .hero-cta-group { flex-direction: column; align-items: center; }
+      .value-section, .actions-section, .process-section, .cta-final { padding: 3.5rem 1.25rem; }
+      .stats-row { grid-template-columns: 1fr; gap: 1rem; }
+      .actions-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+      .process-steps { grid-template-columns: 1fr; gap: 1rem; }
+      .section-title { font-size: 2rem; }
+      .action-card { padding: 2rem 1.5rem 2.25rem; }
+      .action-card h3 { font-size: 1.5rem; }
+      .cta-final h2 { font-size: 2rem; }
+      .cta-final-buttons { flex-direction: column; align-items: center; }
+      .form-row { grid-template-columns: 1fr; }
+      .modal { max-height: 95vh; border-radius: 1rem; }
+      .modal-header { padding: 1.25rem 1.5rem; }
+      .modal-body { padding: 1.5rem; }
+      .modal-footer { padding: 1rem 1.5rem; }
+      .modal-overlay { padding: .75rem; }
+    }
+    @media (max-width: 479px) {
+      .nav-badge { display: none; }
+      .hero h1 { font-size: 2rem; }
+      .hero-eyebrow { font-size: .7rem; padding: .4rem 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== NAV ===== -->
+  <nav>
+    <a class="nav-brand" href="#">
+      <img src="data:image/png;base64,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" alt="Green Hub" class="nav-logo-img">
+    </a>
+    <span class="nav-badge">Referral CRM</span>
+  </nav>
+
+  <!-- ===== HERO ===== -->
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-eyebrow">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+        12 Empresas &middot; 1 Ecosistema
+      </div>
+      <h1>Cada referido es una <span>oportunidad</span> que no puede perderse</h1>
+      <p class="hero-subtitle">Registra, asigna y da seguimiento a cada contacto del ecosistema Green Hub. Sin referidos olvidados, sin oportunidades perdidas.</p>
+      <div class="hero-cta-group">
+        <button class="btn btn-primary btn-large" onclick="openModal('new')">
+          Registrar nuevo referido
+          <svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+        </button>
+        <button class="btn btn-ghost btn-large" onclick="openModal('update')">
+          Actualizar referido existente
+          <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.996.996 0 000-1.41l-2.34-2.34a.996.996 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+        </button>
+      </div>
+      <p class="hero-microcopy">Sin salir de esta pagina &middot; No requiere cuenta &middot; 2 minutos</p>
+    </div>
+  </section>
+
+  <!-- ===== BENEFICIOS ===== -->
+  <section class="value-section">
+    <div class="container">
+      <p class="section-eyebrow">Por que importa</p>
+      <h2 class="section-title">Cada conexion cuenta en el ecosistema</h2>
+      <p class="section-subtitle">Un referido bien gestionado puede convertirse en un cliente, aliado o inversionista clave para cualquiera de las 12 empresas del grupo.</p>
+      <div class="value-video">
+        <video autoplay muted loop playsinline poster="https://res.cloudinary.com/dkqocgknd/image/upload/v1770836857/referral-crm/hero-poster.jpg">
+          <source src="https://res.cloudinary.com/dkqocgknd/video/upload/v1770836856/referral-crm/hero-video.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg></div>
+          <h4>Seguimiento automatico</h4>
+          <p>Recordatorios a los 7 y 14 dias. Escalamiento al manager si no hay avance. Ningun referido queda en el olvido.</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg></div>
+          <h4>Asignacion inteligente</h4>
+          <p>Cada referido se asigna al owner correcto con un email detallado. El registrador recibe confirmacion al instante.</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg></div>
+          <h4>Visibilidad total</h4>
+          <p>Dashboard en tiempo real con el pipeline completo. Etapas claras desde "Nuevo" hasta "Cerrado-Ganado".</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== ACCIONES ===== -->
+  <section class="actions-section">
+    <div class="actions-header">
+      <p class="section-eyebrow">Que quieres hacer</p>
+      <h2 class="section-title">Elige tu accion</h2>
+      <p class="section-subtitle">Dos formularios simples. Un sistema robusto detras. Todo sin salir de esta pagina.</p>
+    </div>
+    <div class="actions-grid">
+      <div class="action-card action-card-new">
+        <div class="action-icon"><svg viewBox="0 0 24 24"><path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></div>
+        <h3>Registrar nuevo referido</h3>
+        <p>Alguien te refirio un contacto valioso? Registralo ahora y se asigna automaticamente al responsable.</p>
+        <ul class="action-features">
+          <li><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>Se asigna al owner con email automatico</li>
+          <li><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>Tu recibiras confirmacion al instante</li>
+          <li><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>Recordatorios automaticos si no hay avance</li>
+        </ul>
+        <button class="btn btn-primary" onclick="openModal('new')">
+          Registrar referido
+          <svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+        </button>
+      </div>
+      <div class="action-card action-card-update">
+        <div class="action-icon"><svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.996.996 0 000-1.41l-2.34-2.34a.996.996 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></div>
+        <h3>Actualizar referido</h3>
+        <p>Ya contactaste al referido? Actualiza la etapa, registra avances y planifica el siguiente paso.</p>
+        <ul class="action-features">
+          <li><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>Cambia etapa: Contactado, Reunion, Negociacion</li>
+          <li><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>El registrador recibe notificacion del cambio</li>
+          <li><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>Usa el ID del email de asignacion</li>
+        </ul>
+        <button class="btn btn-dark" onclick="openModal('update')">
+          Actualizar referido
+          <svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== COMO FUNCIONA ===== -->
+  <section class="process-section">
+    <div class="process-header">
+      <p class="section-eyebrow">Asi de simple</p>
+      <h2 class="section-title">Como funciona</h2>
+      <p class="section-subtitle">Tres pasos. Sin complicaciones. El sistema se encarga del resto.</p>
+    </div>
+    <div class="process-steps">
+      <div class="process-step">
+        <div class="step-number">1</div>
+        <h4>Registra el referido</h4>
+        <p>Completa el formulario con los datos del contacto. Nombre, empresa, objetivo y a quien asignar.</p>
+      </div>
+      <div class="process-step">
+        <div class="step-number">2</div>
+        <h4>El owner recibe el caso</h4>
+        <p>Automaticamente recibe un email con todos los detalles y la instruccion de contactar en 72 horas.</p>
+      </div>
+      <div class="process-step">
+        <div class="step-number">3</div>
+        <h4>Se da seguimiento</h4>
+        <p>El owner actualiza el avance. Si no lo hace, el sistema envia recordatorios y escala automaticamente.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CTA FINAL ===== -->
+  <section class="cta-final">
+    <div class="cta-final-inner">
+      <h2>No dejes pasar la proxima gran conexion</h2>
+      <p>Cada persona que conocemos puede abrir puertas para todo el ecosistema. Registralo ahora.</p>
+      <div class="cta-final-buttons">
+        <button class="btn btn-primary btn-large" onclick="openModal('new')">
+          Registrar nuevo referido
+          <svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+        </button>
+        <button class="btn btn-dark btn-large" onclick="openModal('update')">
+          Actualizar existente
+          <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.996.996 0 000-1.41l-2.34-2.34a.996.996 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer>
+    <div class="footer-logos">
+      <p class="footer-logos-label">Empresas del ecosistema</p>
+      <div class="footer-logos-grid">
+        <img src="https://res.cloudinary.com/dkqocgknd/image/upload/v1770832576/referral-crm/logo-empresa-01.png" alt="Empresa 1">
+        <img src="https://res.cloudinary.com/dkqocgknd/image/upload/v1770832576/referral-crm/logo-empresa-02.png" alt="Empresa 2">
+        <img src="https://res.cloudinary.com/dkqocgknd/image/upload/v1770832577/referral-crm/logo-empresa-03.png" alt="Empresa 3">
+        <img src="https://res.cloudinary.com/dkqocgknd/image/upload/v1770832578/referral-crm/logo-empresa-04.png" alt="Empresa 4">
+        <img src="https://res.cloudinary.com/dkqocgknd/image/upload/v1770832579/referral-crm/logo-empresa-05.png" alt="Empresa 5">
+        <img src="https://res.cloudinary.com/dkqocgknd/image/upload/v1770832580/referral-crm/logo-empresa-06.png" alt="Empresa 6">
+        <img src="https://res.cloudinary.com/dkqocgknd/image/upload/v1770832580/referral-crm/logo-empresa-07.png" alt="Empresa 7">
+        <img src="https://res.cloudinary.com/dkqocgknd/image/upload/v1770832581/referral-crm/logo-empresa-08.png" alt="Empresa 8">
+        <img src="https://res.cloudinary.com/dkqocgknd/image/upload/v1770832582/referral-crm/logo-empresa-09.png" alt="Empresa 9">
+        <img src="https://res.cloudinary.com/dkqocgknd/image/upload/v1770832583/referral-crm/logo-empresa-10.png" alt="Empresa 10">
+        <img src="https://res.cloudinary.com/dkqocgknd/image/upload/v1770832584/referral-crm/logo-empresa-11.png" alt="Empresa 11">
+        <img src="https://res.cloudinary.com/dkqocgknd/image/upload/v1770832584/referral-crm/logo-empresa-12.jpg" alt="Empresa 12">
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-logo"><svg viewBox="0 0 24 24"><path d="M17 8C8 10 5.9 16.17 3.82 21.34l1.89.66.95-2.3c.48.17.98.3 1.34.3C19 20 22 3 22 3c-1 2-8 2.25-13 3.5S2 11.5 2 13.5s1.75 3.75 1.75 3.75C7 8 17 8 17 8z"/></svg></div>
+      <p class="footer-text"><strong>Green Hub</strong> &middot; Referral CRM &middot; Grupo Empresarial</p>
+    </div>
+  </footer>
+
+
+  <!-- ============================================
+       MODAL: NUEVO REFERIDO
+       ============================================ -->
+  <div class="modal-overlay" id="modal-new">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Registrar Nuevo Referido</h2>
+        <button class="modal-close" onclick="closeModal('new')">
+          <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </div>
+
+      <!-- Estado: Formulario -->
+      <div class="modal-body" id="new-form-state">
+        <form id="form-new" onsubmit="return false;">
+          <p class="form-section-title">Datos del referido</p>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nombre del Referido <span class="req">*</span></label>
+              <input type="text" name="nombre" required placeholder="Nombre completo">
+            </div>
+            <div class="form-group">
+              <label>Email del Referido <span class="req">*</span></label>
+              <input type="email" name="email" required placeholder="correo@ejemplo.com">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Telefono</label>
+              <input type="tel" name="telefono" placeholder="+57 300 000 0000">
+            </div>
+            <div class="form-group">
+              <label>Pais <span class="req">*</span></label>
+              <input type="text" name="pais" required placeholder="Colombia">
+            </div>
+          </div>
+          <div class="form-row full">
+            <div class="form-group">
+              <label>LinkedIn</label>
+              <input type="url" name="linkedin" placeholder="https://linkedin.com/in/...">
+            </div>
+          </div>
+
+          <p class="form-section-title">Sobre la oportunidad</p>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Empresa del Grupo <span class="req">*</span></label>
+              <select name="empresa" required>
+                <option value="">Seleccionar...</option>
+                <option>Equation</option>
+                <option>Libertario</option>
+                <option>LPET</option>
+                <option>Green Hub</option>
+                <option>La Palma</option>
+                <option>El Tucan</option>
+                <option>Otra</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Tipo de Referido <span class="req">*</span></label>
+              <select name="tipoReferido" required>
+                <option value="">Seleccionar...</option>
+                <option>Cliente</option>
+                <option>Aliado</option>
+                <option>Inversionista</option>
+                <option>Proveedor</option>
+                <option>Prensa</option>
+                <option>Talento</option>
+                <option>Otro</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row full">
+            <div class="form-group">
+              <label>Objetivo / Que se busca lograr <span class="req">*</span></label>
+              <textarea name="objetivo" required placeholder="Describe brevemente que oportunidad representa este referido..."></textarea>
+            </div>
+          </div>
+          <div class="form-row full">
+            <div class="form-group">
+              <label>Valor Potencial USD (estimado)</label>
+              <input type="text" name="valorPotencial" placeholder="Ej: 5000">
+            </div>
+          </div>
+
+          <p class="form-section-title">Asignacion</p>
+          <div class="form-row full">
+            <div class="form-group">
+              <label>Owner / Responsable de seguimiento <span class="req">*</span></label>
+              <select name="ownerEmail" id="owner-select" required>
+                <option value="">Cargando owners...</option>
+              </select>
+              <span class="field-hint">Se le notificara por email automaticamente</span>
+            </div>
+          </div>
+
+          <p class="form-section-title">Tu informacion</p>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Tu Nombre <span class="req">*</span></label>
+              <input type="text" name="tuNombre" required placeholder="Tu nombre completo">
+            </div>
+            <div class="form-group">
+              <label>Tu Email <span class="req">*</span></label>
+              <input type="email" name="tuEmail" required placeholder="tu@email.com">
+            </div>
+          </div>
+          <div class="form-row full">
+            <div class="form-group">
+              <label>Notas adicionales</label>
+              <textarea name="notas" placeholder="Contexto extra, como se conocieron, etc."></textarea>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Estado: Loading -->
+      <div class="modal-state" id="new-loading-state">
+        <div class="spinner"></div>
+        <p class="state-title">Registrando referido...</p>
+        <p class="state-msg">Guardando datos, asignando owner y enviando notificaciones.</p>
+      </div>
+
+      <!-- Estado: Exito -->
+      <div class="modal-state" id="new-success-state">
+        <div class="state-icon state-icon-success">
+          <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+        </div>
+        <p class="state-title">Referido registrado</p>
+        <p class="state-msg" id="new-success-msg">El referido ha sido asignado correctamente.</p>
+        <button class="btn btn-primary" onclick="resetAndClose('new')">
+          Cerrar
+          <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+        </button>
+      </div>
+
+      <!-- Estado: Error -->
+      <div class="modal-state" id="new-error-state">
+        <div class="state-icon state-icon-error">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+        </div>
+        <p class="state-title">Hubo un error</p>
+        <p class="state-msg" id="new-error-msg">No se pudo registrar el referido.</p>
+        <button class="btn btn-primary" onclick="showState('new','form')">
+          Intentar de nuevo
+          <svg viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+        </button>
+      </div>
+
+      <div class="modal-footer" id="new-footer">
+        <button class="btn-cancel" onclick="closeModal('new')">Cancelar</button>
+        <button class="btn-submit" id="btn-submit-new" onclick="submitNewReferral()">
+          Registrar referido
+          <svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ============================================
+       MODAL: ACTUALIZAR REFERIDO
+       ============================================ -->
+  <div class="modal-overlay" id="modal-update">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Actualizar Referido</h2>
+        <button class="modal-close" onclick="closeModal('update')">
+          <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </div>
+
+      <!-- Estado: Formulario -->
+      <div class="modal-body" id="update-form-state">
+        <form id="form-update" onsubmit="return false;">
+          <p class="form-section-title">Identificacion</p>
+          <div class="form-row full">
+            <div class="form-group">
+              <label>ID del Referido <span class="req">*</span></label>
+              <input type="number" name="referralId" required placeholder="Ej: 5" min="1">
+              <span class="field-hint">Numero ID que aparece en el email de asignacion</span>
+            </div>
+          </div>
+
+          <p class="form-section-title">Actualizacion</p>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nueva Etapa <span class="req">*</span></label>
+              <select name="nuevaEtapa" required>
+                <option value="">Seleccionar...</option>
+                <option>Contactado</option>
+                <option>Reunion Agendada</option>
+                <option>En Negociacion</option>
+                <option>Cerrado-Ganado</option>
+                <option>Cerrado-Perdido</option>
+                <option>Dormido</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Fecha de Follow-up</label>
+              <input type="date" name="fechaFollowUp">
+            </div>
+          </div>
+          <div class="form-row full">
+            <div class="form-group">
+              <label>Proximo Paso</label>
+              <input type="text" name="proximoPaso" placeholder="Ej: Llamar el martes para confirmar reunion">
+            </div>
+          </div>
+          <div class="form-row full">
+            <div class="form-group">
+              <label>Notas / Que paso <span class="req">*</span></label>
+              <textarea name="notas" required placeholder="Describe el avance, resultado de la llamada, reunion, etc."></textarea>
+            </div>
+          </div>
+          <div class="form-row full">
+            <div class="form-group">
+              <label>Si cerrado: Razon</label>
+              <textarea name="razonCierre" placeholder="Solo si marcaste como Cerrado-Ganado o Cerrado-Perdido"></textarea>
+              <span class="field-hint">Solo aplica si la etapa es Cerrado-Ganado o Cerrado-Perdido</span>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Estado: Loading -->
+      <div class="modal-state" id="update-loading-state">
+        <div class="spinner"></div>
+        <p class="state-title">Actualizando referido...</p>
+        <p class="state-msg">Guardando cambios y enviando notificaciones.</p>
+      </div>
+
+      <!-- Estado: Exito -->
+      <div class="modal-state" id="update-success-state">
+        <div class="state-icon state-icon-success">
+          <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+        </div>
+        <p class="state-title">Referido actualizado</p>
+        <p class="state-msg" id="update-success-msg">Los cambios se guardaron correctamente.</p>
+        <button class="btn btn-primary" onclick="resetAndClose('update')">
+          Cerrar
+          <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+        </button>
+      </div>
+
+      <!-- Estado: Error -->
+      <div class="modal-state" id="update-error-state">
+        <div class="state-icon state-icon-error">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+        </div>
+        <p class="state-title">Hubo un error</p>
+        <p class="state-msg" id="update-error-msg">No se pudo actualizar el referido.</p>
+        <button class="btn btn-primary" onclick="showState('update','form')">
+          Intentar de nuevo
+          <svg viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+        </button>
+      </div>
+
+      <div class="modal-footer" id="update-footer">
+        <button class="btn-cancel" onclick="closeModal('update')">Cancelar</button>
+        <button class="btn-submit" id="btn-submit-update" onclick="submitUpdateReferral()">
+          Actualizar referido
+          <svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ============================================
+       JAVASCRIPT
+       ============================================ -->
+  <script>
+    // ===== ENDPOINTS n8n =====
+    var ENDPOINTS = {
+      owners: 'https://jhona.app.n8n.cloud/webhook/referral-owners',
+      newReferral: 'https://jhona.app.n8n.cloud/webhook/referral-new',
+      updateReferral: 'https://jhona.app.n8n.cloud/webhook/referral-update'
+    };
+    var formConfig = null;
+
+    // ===== MODAL SYSTEM =====
+    function openModal(type) {
+      var overlay = document.getElementById('modal-' + type);
+      overlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+
+      // Cargar config de owners si es nuevo referido y aun no se ha cargado
+      if (type === 'new' && !formConfig) {
+        loadFormConfig();
+      }
+    }
+
+    function closeModal(type) {
+      var overlay = document.getElementById('modal-' + type);
+      overlay.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    function resetAndClose(type) {
+      showState(type, 'form');
+      document.getElementById('form-' + type).reset();
+      closeModal(type);
+    }
+
+    // Cerrar modal con click en overlay
+    document.querySelectorAll('.modal-overlay').forEach(function(overlay) {
+      overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) {
+          var type = overlay.id.replace('modal-', '');
+          closeModal(type);
+        }
+      });
+    });
+
+    // Cerrar modal con Escape
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.modal-overlay.active').forEach(function(overlay) {
+          var type = overlay.id.replace('modal-', '');
+          closeModal(type);
+        });
+      }
+    });
+
+    // ===== ESTADOS DEL MODAL =====
+    function showState(type, state) {
+      var formState = document.getElementById(type + '-form-state');
+      var loadingState = document.getElementById(type + '-loading-state');
+      var successState = document.getElementById(type + '-success-state');
+      var errorState = document.getElementById(type + '-error-state');
+      var footer = document.getElementById(type + '-footer');
+
+      formState.style.display = 'none';
+      loadingState.classList.remove('active');
+      successState.classList.remove('active');
+      errorState.classList.remove('active');
+      footer.style.display = 'none';
+
+      if (state === 'form') {
+        formState.style.display = 'block';
+        footer.style.display = 'flex';
+      } else if (state === 'loading') {
+        loadingState.classList.add('active');
+      } else if (state === 'success') {
+        successState.classList.add('active');
+      } else if (state === 'error') {
+        errorState.classList.add('active');
+      }
+    }
+
+    // ===== CARGAR CONFIG DE OWNERS =====
+    function loadFormConfig() {
+      fetch(ENDPOINTS.owners)
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          formConfig = data;
+          if (data && data.owners) {
+            populateOwners(data.owners);
+          }
+        })
+        .catch(function(err) {
+          console.error('Error cargando owners:', err);
+          populateOwners([]);
+        });
+    }
+
+    function populateOwners(owners) {
+      var select = document.getElementById('owner-select');
+      select.innerHTML = '<option value="">Seleccionar owner...</option>';
+      owners.forEach(function(o) {
+        var opt = document.createElement('option');
+        opt.value = o.email;
+        opt.textContent = o.name + ' (' + o.email + ')';
+        select.appendChild(opt);
+      });
+    }
+
+    // ===== VALIDACION =====
+    function validateForm(formId) {
+      var form = document.getElementById(formId);
+      var inputs = form.querySelectorAll('[required]');
+      var valid = true;
+      inputs.forEach(function(input) {
+        input.classList.remove('error');
+        if (!input.value.trim()) {
+          input.classList.add('error');
+          valid = false;
+        }
+        if (input.type === 'email' && input.value && !input.value.includes('@')) {
+          input.classList.add('error');
+          valid = false;
+        }
+      });
+      if (!valid) {
+        var firstError = form.querySelector('.error');
+        if (firstError) firstError.focus();
+      }
+      return valid;
+    }
+
+    // ===== SUBMIT: NUEVO REFERIDO =====
+    function submitNewReferral() {
+      if (!validateForm('form-new')) return;
+
+      var form = document.getElementById('form-new');
+      var data = {
+        empresa: form.empresa.value,
+        tipoReferido: form.tipoReferido.value,
+        nombre: form.nombre.value.trim(),
+        email: form.email.value.trim(),
+        telefono: form.telefono.value.trim(),
+        pais: form.pais.value.trim(),
+        linkedin: form.linkedin.value.trim(),
+        objetivo: form.objetivo.value.trim(),
+        valorPotencial: form.valorPotencial.value.trim(),
+        ownerEmail: form.ownerEmail.value,
+        tuNombre: form.tuNombre.value.trim(),
+        tuEmail: form.tuEmail.value.trim(),
+        notas: form.notas.value.trim()
+      };
+
+      showState('new', 'loading');
+
+      fetch(ENDPOINTS.newReferral, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      })
+        .then(function(res) { return res.json(); })
+        .then(function(result) {
+          if (result && result.success) {
+            showState('new', 'success');
+            document.getElementById('new-success-msg').innerHTML =
+              'Referido <strong>#' + result.id + '</strong> registrado exitosamente.<br>' +
+              'Asignado a <strong>' + result.ownerNombre + '</strong>. Se enviaron las notificaciones por email.';
+          } else {
+            showState('new', 'error');
+            document.getElementById('new-error-msg').textContent = (result && result.error) || 'Error desconocido.';
+          }
+        })
+        .catch(function(err) {
+          showState('new', 'error');
+          document.getElementById('new-error-msg').textContent = err.message || 'Error de conexion con el servidor.';
+        });
+    }
+
+    // ===== SUBMIT: ACTUALIZAR REFERIDO =====
+    function submitUpdateReferral() {
+      if (!validateForm('form-update')) return;
+
+      var form = document.getElementById('form-update');
+      var data = {
+        referralId: form.referralId.value.trim(),
+        nuevaEtapa: form.nuevaEtapa.value,
+        proximoPaso: form.proximoPaso.value.trim(),
+        fechaFollowUp: form.fechaFollowUp.value,
+        notas: form.notas.value.trim(),
+        razonCierre: form.razonCierre.value.trim()
+      };
+
+      showState('update', 'loading');
+
+      fetch(ENDPOINTS.updateReferral, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      })
+        .then(function(res) { return res.json(); })
+        .then(function(result) {
+          if (result && result.success) {
+            showState('update', 'success');
+            document.getElementById('update-success-msg').innerHTML =
+              'Referido <strong>#' + result.id + '</strong> actualizado correctamente.<br>' +
+              'Se notificaron los cambios por email.';
+          } else {
+            showState('update', 'error');
+            document.getElementById('update-error-msg').textContent = (result && result.error) || 'Error desconocido.';
+          }
+        })
+        .catch(function(err) {
+          showState('update', 'error');
+          document.getElementById('update-error-msg').textContent = err.message || 'Error de conexion con el servidor.';
+        });
+    }
+
+    // Cargar owners al inicio
+    loadFormConfig();
+  </script>
+
+</body>
+</html>
