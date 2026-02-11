@@ -1,0 +1,163 @@
+{
+  "name": "Referral CRM - POST New Referral",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "referral-new",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 300],
+      "webhookId": "referral-new"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://sheets.googleapis.com/v4/spreadsheets/1MOeVop7Ci7F117GjUe7rlmq8aMx8jgmByFooavORUCM/values/Users!A:E",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api",
+        "options": {}
+      },
+      "name": "Read Users",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [260, 300],
+      "credentials": {
+        "googleSheetsOAuth2Api": { "id": "ijhDM45kmOOEzqzs", "name": "Google Sheets account" }
+      }
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://sheets.googleapis.com/v4/spreadsheets/1MOeVop7Ci7F117GjUe7rlmq8aMx8jgmByFooavORUCM/values/Referrals!A:A",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api",
+        "options": {}
+      },
+      "name": "Read Referral IDs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [480, 300],
+      "credentials": {
+        "googleSheetsOAuth2Api": { "id": "ijhDM45kmOOEzqzs", "name": "Google Sheets account" }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $('Webhook').first().json.body;\nconst usersData = $('Read Users').first().json;\nconst idsData = $('Read Referral IDs').first().json;\n\n// Calcular siguiente ID\nconst idRows = (idsData.values || []).slice(1);\nlet maxId = 0;\nfor (const row of idRows) {\n  const id = parseInt(row[0]);\n  if (!isNaN(id) && id > maxId) maxId = id;\n}\nconst newId = maxId + 1;\n\n// Buscar nombre del owner\nconst userRows = (usersData.values || []).slice(1);\nlet ownerNombre = '';\nfor (const row of userRows) {\n  if (row[1] === body.ownerEmail) {\n    ownerNombre = row[0];\n    break;\n  }\n}\n\nconst timestamp = new Date().toISOString();\n\nreturn [{ json: {\n  newId,\n  ownerNombre,\n  timestamp,\n  body,\n  row: [\n    newId,\n    timestamp,\n    body.empresa || '',\n    body.tipoReferido || '',\n    body.nombre || '',\n    body.empresaReferido || '',\n    body.email || '',\n    body.telefono || '',\n    body.pais || '',\n    body.linkedin || '',\n    body.objetivo || '',\n    body.valorPotencial || '',\n    body.ownerEmail || '',\n    ownerNombre,\n    body.tuEmail || '',\n    body.tuNombre || '',\n    'Nuevo',\n    timestamp,\n    '',\n    '',\n    '',\n    '',\n    body.notas || '',\n    '0'\n  ],\n  activityRow: [\n    timestamp,\n    newId,\n    body.tuNombre + ' (' + body.tuEmail + ')',\n    '',\n    'Nuevo',\n    'Referido registrado via landing page',\n    ''\n  ]\n}}];"
+      },
+      "name": "Process Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [700, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://sheets.googleapis.com/v4/spreadsheets/1MOeVop7Ci7F117GjUe7rlmq8aMx8jgmByFooavORUCM/values/Referrals!A:X:append?valueInputOption=USER_ENTERED",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"values\": [{{ JSON.stringify($json.row) }}] }",
+        "options": {}
+      },
+      "name": "Append Referral",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [920, 300],
+      "credentials": {
+        "googleSheetsOAuth2Api": { "id": "ijhDM45kmOOEzqzs", "name": "Google Sheets account" }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://sheets.googleapis.com/v4/spreadsheets/1MOeVop7Ci7F117GjUe7rlmq8aMx8jgmByFooavORUCM/values/Activity%20Log!A:G:append?valueInputOption=USER_ENTERED",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"values\": [{{ JSON.stringify($('Process Data').first().json.activityRow) }}] }",
+        "options": {}
+      },
+      "name": "Append Activity Log",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1140, 300],
+      "credentials": {
+        "googleSheetsOAuth2Api": { "id": "ijhDM45kmOOEzqzs", "name": "Google Sheets account" }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: true, id: $('Process Data').first().json.newId, ownerNombre: $('Process Data').first().json.ownerNombre }) }}",
+        "options": {}
+      },
+      "name": "Respond OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1360, 300]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Process Data').first().json.body.ownerEmail }}",
+        "subject": "=Nuevo Referido Asignado - #{{ $('Process Data').first().json.newId }} {{ $('Process Data').first().json.body.nombre }}",
+        "message": "=<h2>Nuevo referido asignado a ti</h2><p><strong>ID:</strong> #{{ $('Process Data').first().json.newId }}</p><p><strong>Nombre:</strong> {{ $('Process Data').first().json.body.nombre }}</p><p><strong>Email:</strong> {{ $('Process Data').first().json.body.email }}</p><p><strong>Telefono:</strong> {{ $('Process Data').first().json.body.telefono || 'No proporcionado' }}</p><p><strong>Empresa:</strong> {{ $('Process Data').first().json.body.empresa }}</p><p><strong>Tipo:</strong> {{ $('Process Data').first().json.body.tipoReferido }}</p><p><strong>Pais:</strong> {{ $('Process Data').first().json.body.pais }}</p><p><strong>LinkedIn:</strong> {{ $('Process Data').first().json.body.linkedin || 'No proporcionado' }}</p><hr><p><strong>Objetivo:</strong> {{ $('Process Data').first().json.body.objetivo }}</p><p><strong>Valor Potencial:</strong> ${{ $('Process Data').first().json.body.valorPotencial || 'No estimado' }} USD</p><p><strong>Notas:</strong> {{ $('Process Data').first().json.body.notas || 'Ninguna' }}</p><hr><p><strong>Registrado por:</strong> {{ $('Process Data').first().json.body.tuNombre }} ({{ $('Process Data').first().json.body.tuEmail }})</p><p>Por favor contacta a este referido en las proximas 72 horas.</p><hr><p><small>Green Hub Referral CRM</small></p>",
+        "options": {}
+      },
+      "name": "Email Owner",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [1580, 200],
+      "credentials": {
+        "gmailOAuth2": { "id": "34ae23XNAsWrUf5I", "name": "Gmail account" }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Process Data').first().json.body.tuEmail }}",
+        "subject": "=Confirmacion - Referido #{{ $('Process Data').first().json.newId }} registrado exitosamente",
+        "message": "=<h2>Tu referido fue registrado exitosamente</h2><p><strong>ID:</strong> #{{ $('Process Data').first().json.newId }}</p><p><strong>Referido:</strong> {{ $('Process Data').first().json.body.nombre }}</p><p><strong>Asignado a:</strong> {{ $('Process Data').first().json.ownerNombre }} ({{ $('Process Data').first().json.body.ownerEmail }})</p><p>El owner ya fue notificado y dara seguimiento. Guarda el ID #{{ $('Process Data').first().json.newId }} para futuras actualizaciones.</p><hr><p><small>Green Hub Referral CRM</small></p>",
+        "options": {}
+      },
+      "name": "Email Registrador",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [1580, 400],
+      "credentials": {
+        "gmailOAuth2": { "id": "34ae23XNAsWrUf5I", "name": "Gmail account" }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Process Data').first().json.body.email }}",
+        "subject": "=Green Hub - Hemos recibido tu referencia",
+        "message": "=<div style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto'><h2 style='color:#123840'>Hola {{ $('Process Data').first().json.body.nombre }},</h2><p>Queremos confirmarte que hemos recibido tu informacion a traves de nuestro programa de referidos de <strong>Green Hub</strong>.</p><p>Un miembro de nuestro equipo se pondra en contacto contigo proximamente para conversar sobre como podemos trabajar juntos.</p><p>Si tienes alguna pregunta mientras tanto, no dudes en responder a este correo.</p><br><p>Cordialmente,</p><p><strong>Equipo Green Hub</strong></p><hr style='border:none;border-top:1px solid #e0e0e0;margin:20px 0'><p style='font-size:12px;color:#999'>Este correo fue generado automaticamente por el sistema de referidos de Green Hub.</p></div>",
+        "options": {}
+      },
+      "name": "Email Referido",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [1580, 600],
+      "credentials": {
+        "gmailOAuth2": { "id": "34ae23XNAsWrUf5I", "name": "Gmail account" }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": { "main": [[{ "node": "Read Users", "type": "main", "index": 0 }]] },
+    "Read Users": { "main": [[{ "node": "Read Referral IDs", "type": "main", "index": 0 }]] },
+    "Read Referral IDs": { "main": [[{ "node": "Process Data", "type": "main", "index": 0 }]] },
+    "Process Data": { "main": [[{ "node": "Append Referral", "type": "main", "index": 0 }]] },
+    "Append Referral": { "main": [[{ "node": "Append Activity Log", "type": "main", "index": 0 }]] },
+    "Append Activity Log": { "main": [[{ "node": "Respond OK", "type": "main", "index": 0 }]] },
+    "Respond OK": { "main": [[{ "node": "Email Owner", "type": "main", "index": 0 }, { "node": "Email Registrador", "type": "main", "index": 0 }, { "node": "Email Referido", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" }
+}

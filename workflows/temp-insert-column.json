@@ -1,0 +1,41 @@
+{
+  "name": "TEMP - Insertar Columna",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "temp-insert-column",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 300],
+      "webhookId": "temp-insert-column"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://sheets.googleapis.com/v4/spreadsheets/1MOeVop7Ci7F117GjUe7rlmq8aMx8jgmByFooavORUCM:batchUpdate",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{ \"requests\": [{ \"insertDimension\": { \"range\": { \"sheetId\": 0, \"dimension\": \"COLUMNS\", \"startIndex\": 5, \"endIndex\": 6 }, \"inheritFromBefore\": false } }, { \"updateCells\": { \"rows\": [{ \"values\": [{ \"userEnteredValue\": { \"stringValue\": \"Empresa Referido\" } }] }], \"fields\": \"userEnteredValue\", \"start\": { \"sheetId\": 0, \"rowIndex\": 0, \"columnIndex\": 5 } } }] }",
+        "options": {}
+      },
+      "name": "Insert Column F",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [260, 300],
+      "credentials": {
+        "googleSheetsOAuth2Api": { "id": "ijhDM45kmOOEzqzs", "name": "Google Sheets account" }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": { "main": [[{ "node": "Insert Column F", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" }
+}

@@ -1,0 +1,98 @@
+{
+  "name": "Referral CRM - Alerta Diaria",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 8,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      },
+      "name": "Cada dia 8am",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "referral-daily-report",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "name": "Webhook Manual",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 500],
+      "webhookId": "referral-daily-report"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://sheets.googleapis.com/v4/spreadsheets/1MOeVop7Ci7F117GjUe7rlmq8aMx8jgmByFooavORUCM/values/Referrals!A:X",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api",
+        "options": {}
+      },
+      "name": "Read Referrals",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [260, 300],
+      "credentials": {
+        "googleSheetsOAuth2Api": { "id": "ijhDM45kmOOEzqzs", "name": "Google Sheets account" }
+      }
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://sheets.googleapis.com/v4/spreadsheets/1MOeVop7Ci7F117GjUe7rlmq8aMx8jgmByFooavORUCM/values/Activity%20Log!A:G",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api",
+        "options": {}
+      },
+      "name": "Read Activity Log",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [260, 500],
+      "credentials": {
+        "googleSheetsOAuth2Api": { "id": "ijhDM45kmOOEzqzs", "name": "Google Sheets account" }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const referralsData = $('Read Referrals').first().json;\nconst activityData = $('Read Activity Log').first().json;\n\nconst refRows = (referralsData.values || []).slice(1);\nconst actRows = (activityData.values || []).slice(1);\n\n// Fecha de ayer y hoy (UTC-5 Colombia)\nconst now = new Date();\nconst col = new Date(now.getTime() - 5 * 60 * 60 * 1000);\nconst hoy = col.toISOString().split('T')[0];\nconst ayer = new Date(col.getTime() - 24 * 60 * 60 * 1000).toISOString().split('T')[0];\n\n// --- STATS GENERALES ---\nconst total = refRows.length;\nlet porEtapa = {};\nlet nuevosAyer = [];\nlet actualizadosAyer = [];\nlet sinUpdate7 = [];\nlet sinUpdate14 = [];\nlet cerradosAyer = [];\n\nfor (const row of refRows) {\n  const id = row[0] || '';\n  const timestamp = (row[1] || '').split('T')[0];\n  const nombre = row[4] || '';\n  const email = row[6] || '';\n  const ownerNombre = row[13] || '';\n  const etapa = row[16] || 'Nuevo';\n  const ultimaAct = (row[17] || '').split('T')[0];\n\n  // Contar por etapa\n  porEtapa[etapa] = (porEtapa[etapa] || 0) + 1;\n\n  // Nuevos ayer\n  if (timestamp === ayer) {\n    nuevosAyer.push({ id, nombre, ownerNombre, etapa });\n  }\n\n  // Actualizados ayer\n  if (ultimaAct === ayer && timestamp !== ayer) {\n    actualizadosAyer.push({ id, nombre, ownerNombre, etapa });\n  }\n\n  // Cerrados ayer\n  if (ultimaAct === ayer && (etapa === 'Cerrado-Ganado' || etapa === 'Cerrado-Perdido')) {\n    cerradosAyer.push({ id, nombre, etapa });\n  }\n\n  // Sin update > 7 dias\n  const fechaRef = ultimaAct || timestamp;\n  if (fechaRef && etapa !== 'Cerrado-Ganado' && etapa !== 'Cerrado-Perdido' && etapa !== 'Dormido') {\n    const diffMs = col.getTime() - new Date(fechaRef).getTime();\n    const diffDias = Math.floor(diffMs / (1000 * 60 * 60 * 24));\n    if (diffDias >= 14) {\n      sinUpdate14.push({ id, nombre, ownerNombre, etapa, dias: diffDias });\n    } else if (diffDias >= 7) {\n      sinUpdate7.push({ id, nombre, ownerNombre, etapa, dias: diffDias });\n    }\n  }\n}\n\n// Actividad de ayer del log\nlet movimientosAyer = 0;\nfor (const row of actRows) {\n  const ts = (row[0] || '').split('T')[0];\n  if (ts === ayer) movimientosAyer++;\n}\n\n// --- CONSTRUIR HTML ---\nlet html = '';\n\n// Header\nhtml += '<div style=\"font-family:Arial,sans-serif;max-width:650px;margin:0 auto;\">';\nhtml += '<div style=\"background:#123840;color:#fff;padding:20px 24px;border-radius:12px 12px 0 0;\">';\nhtml += '<h1 style=\"margin:0;font-size:20px;\">Reporte Diario - Referral CRM</h1>';\nhtml += '<p style=\"margin:4px 0 0;opacity:0.7;font-size:14px;\">Resumen del ' + ayer + '</p>';\nhtml += '</div>';\n\n// Stats principales\nhtml += '<div style=\"background:#f0faf5;padding:20px 24px;display:flex;gap:12px;\">';\nhtml += '<div style=\"flex:1;background:#fff;border-radius:8px;padding:16px;text-align:center;border:1px solid #e0e0e0;\">';\nhtml += '<div style=\"font-size:28px;font-weight:bold;color:#47a179;\">' + nuevosAyer.length + '</div>';\nhtml += '<div style=\"font-size:12px;color:#666;\">Nuevos ayer</div></div>';\nhtml += '<div style=\"flex:1;background:#fff;border-radius:8px;padding:16px;text-align:center;border:1px solid #e0e0e0;\">';\nhtml += '<div style=\"font-size:28px;font-weight:bold;color:#317269;\">' + actualizadosAyer.length + '</div>';\nhtml += '<div style=\"font-size:12px;color:#666;\">Actualizados</div></div>';\nhtml += '<div style=\"flex:1;background:#fff;border-radius:8px;padding:16px;text-align:center;border:1px solid #e0e0e0;\">';\nhtml += '<div style=\"font-size:28px;font-weight:bold;color:#255a5b;\">' + cerradosAyer.length + '</div>';\nhtml += '<div style=\"font-size:12px;color:#666;\">Cerrados</div></div>';\nhtml += '<div style=\"flex:1;background:#fff;border-radius:8px;padding:16px;text-align:center;border:1px solid #e0e0e0;\">';\nhtml += '<div style=\"font-size:28px;font-weight:bold;color:#160e08;\">' + total + '</div>';\nhtml += '<div style=\"font-size:12px;color:#666;\">Total</div></div>';\nhtml += '</div>';\n\n// Pipeline\nhtml += '<div style=\"padding:20px 24px;\">';\nhtml += '<h3 style=\"margin:0 0 12px;font-size:15px;color:#123840;\">Pipeline actual</h3>';\nhtml += '<table style=\"width:100%;border-collapse:collapse;font-size:13px;\">';\nconst etapasOrden = ['Nuevo','Contactado','Reunion Agendada','En Negociacion','Cerrado-Ganado','Cerrado-Perdido','Dormido'];\nfor (const et of etapasOrden) {\n  const count = porEtapa[et] || 0;\n  if (count > 0) {\n    const color = et === 'Cerrado-Ganado' ? '#47a179' : et === 'Cerrado-Perdido' ? '#e74c3c' : et === 'Dormido' ? '#999' : '#123840';\n    html += '<tr><td style=\"padding:6px 8px;border-bottom:1px solid #eee;\">' + et + '</td>';\n    html += '<td style=\"padding:6px 8px;border-bottom:1px solid #eee;font-weight:bold;color:' + color + ';text-align:right;\">' + count + '</td></tr>';\n  }\n}\nhtml += '</table></div>';\n\n// Alertas\nif (sinUpdate14.length > 0 || sinUpdate7.length > 0) {\n  html += '<div style=\"padding:20px 24px;background:#fdf0ef;\">';\n  html += '<h3 style=\"margin:0 0 12px;font-size:15px;color:#e74c3c;\">Alertas - Referidos sin movimiento</h3>';\n  html += '<table style=\"width:100%;border-collapse:collapse;font-size:13px;\">';\n  html += '<tr style=\"background:#e74c3c;color:#fff;\"><th style=\"padding:8px;text-align:left;\">ID</th><th style=\"padding:8px;text-align:left;\">Nombre</th><th style=\"padding:8px;text-align:left;\">Owner</th><th style=\"padding:8px;text-align:left;\">Etapa</th><th style=\"padding:8px;text-align:right;\">Dias</th></tr>';\n  const alertas = [...sinUpdate14, ...sinUpdate7].sort((a,b) => b.dias - a.dias);\n  for (const a of alertas) {\n    const bg = a.dias >= 14 ? '#fce4e4' : '#fff3e0';\n    html += '<tr style=\"background:' + bg + ';\"><td style=\"padding:6px 8px;border-bottom:1px solid #eee;\">#' + a.id + '</td>';\n    html += '<td style=\"padding:6px 8px;border-bottom:1px solid #eee;\">' + a.nombre + '</td>';\n    html += '<td style=\"padding:6px 8px;border-bottom:1px solid #eee;\">' + a.ownerNombre + '</td>';\n    html += '<td style=\"padding:6px 8px;border-bottom:1px solid #eee;\">' + a.etapa + '</td>';\n    html += '<td style=\"padding:6px 8px;border-bottom:1px solid #eee;text-align:right;font-weight:bold;\">' + a.dias + 'd</td></tr>';\n  }\n  html += '</table></div>';\n}\n\n// Detalle nuevos ayer\nif (nuevosAyer.length > 0) {\n  html += '<div style=\"padding:20px 24px;\">';\n  html += '<h3 style=\"margin:0 0 12px;font-size:15px;color:#123840;\">Nuevos registrados ayer</h3>';\n  html += '<ul style=\"margin:0;padding:0 0 0 20px;font-size:13px;\">';\n  for (const n of nuevosAyer) {\n    html += '<li style=\"margin-bottom:4px;\"><strong>#' + n.id + '</strong> ' + n.nombre + ' → ' + n.ownerNombre + '</li>';\n  }\n  html += '</ul></div>';\n}\n\n// Footer\nhtml += '<div style=\"padding:16px 24px;background:#f5f5f5;border-radius:0 0 12px 12px;text-align:center;\">';\nhtml += '<p style=\"margin:0;font-size:11px;color:#999;\">Green Hub Referral CRM - Reporte automatico diario</p>';\nhtml += '</div></div>';\n\nconst hayAlgo = nuevosAyer.length > 0 || actualizadosAyer.length > 0 || cerradosAyer.length > 0 || sinUpdate7.length > 0 || sinUpdate14.length > 0;\n\nreturn [{ json: {\n  html,\n  hayAlgo,\n  fecha: ayer,\n  stats: { total, nuevosAyer: nuevosAyer.length, actualizadosAyer: actualizadosAyer.length, cerradosAyer: cerradosAyer.length, sinUpdate7: sinUpdate7.length, sinUpdate14: sinUpdate14.length, movimientosAyer },\n  subject: 'Referral CRM - ' + ayer + ': ' + nuevosAyer.length + ' nuevos, ' + actualizadosAyer.length + ' actualizados' + (sinUpdate14.length > 0 ? ', ' + sinUpdate14.length + ' URGENTES' : '')\n}}];"
+      },
+      "name": "Generar Reporte",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [520, 400]
+    },
+    {
+      "parameters": {
+        "sendTo": "jbenavides@lapalmayeltucan.com",
+        "subject": "={{ $json.subject }}",
+        "message": "={{ $json.html }}",
+        "options": {}
+      },
+      "name": "Enviar Reporte",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [740, 400],
+      "credentials": {
+        "gmailOAuth2": { "id": "34ae23XNAsWrUf5I", "name": "Gmail account" }
+      }
+    }
+  ],
+  "connections": {
+    "Cada dia 8am": { "main": [[{ "node": "Read Referrals", "type": "main", "index": 0 }]] },
+    "Webhook Manual": { "main": [[{ "node": "Read Referrals", "type": "main", "index": 0 }]] },
+    "Read Referrals": { "main": [[{ "node": "Read Activity Log", "type": "main", "index": 0 }]] },
+    "Read Activity Log": { "main": [[{ "node": "Generar Reporte", "type": "main", "index": 0 }]] },
+    "Generar Reporte": { "main": [[{ "node": "Enviar Reporte", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1", "timezone": "America/Bogota" }
+}

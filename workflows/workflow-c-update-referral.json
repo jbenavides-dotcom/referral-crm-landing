@@ -1,0 +1,177 @@
+{
+  "name": "Referral CRM - POST Update Referral",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "referral-update",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 300],
+      "webhookId": "referral-update"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://sheets.googleapis.com/v4/spreadsheets/1MOeVop7Ci7F117GjUe7rlmq8aMx8jgmByFooavORUCM/values/Referrals!A:X",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api",
+        "options": {}
+      },
+      "name": "Read Referrals",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [260, 300],
+      "credentials": {
+        "googleSheetsOAuth2Api": { "id": "ijhDM45kmOOEzqzs", "name": "Google Sheets account" }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $('Webhook').first().json.body;\nconst data = $input.first().json;\nconst rows = data.values || [];\nif (rows.length < 2) return [{ json: { found: false, error: 'No hay referidos registrados' } }];\n\nconst targetId = parseInt(body.referralId);\nif (isNaN(targetId)) return [{ json: { found: false, error: 'ID invalido' } }];\n\n// Buscar fila por ID (columna A)\nlet rowIndex = -1;\nlet existingRow = null;\nfor (let i = 1; i < rows.length; i++) {\n  if (parseInt(rows[i][0]) === targetId) {\n    rowIndex = i + 1; // 1-indexed for Sheets API\n    existingRow = rows[i];\n    break;\n  }\n}\n\nif (rowIndex === -1) return [{ json: { found: false, error: 'Referido #' + targetId + ' no encontrado' } }];\n\nconst timestamp = new Date().toISOString();\nconst oldEtapa = existingRow[16] || 'Nuevo';\nconst newEtapa = body.nuevaEtapa || oldEtapa;\nconst stageChanged = oldEtapa !== newEtapa;\nconst registradorEmail = existingRow[14] || '';\nconst registradorNombre = existingRow[15] || '';\nconst referidoNombre = existingRow[4] || '';\nconst referidoEmail = existingRow[6] || '';\n\n// Preparar valores actualizados (columnas Q a X = indices 16-23)\nconst updatedRow = [...existingRow];\nupdatedRow[16] = newEtapa; // Etapa\nupdatedRow[17] = timestamp; // Ultima Actualizacion\nupdatedRow[18] = body.proximoPaso || existingRow[18] || ''; // Proximo Paso\nupdatedRow[19] = body.fechaFollowUp || existingRow[19] || ''; // Fecha Follow-up\nif (newEtapa === 'Cerrado-Ganado') updatedRow[20] = 'Ganado';\nelse if (newEtapa === 'Cerrado-Perdido') updatedRow[20] = 'Perdido';\nupdatedRow[21] = body.razonCierre || existingRow[21] || ''; // Razon Cierre\nif (body.notas) updatedRow[22] = (existingRow[22] || '') + '\\n[' + timestamp.split('T')[0] + '] ' + body.notas;\nupdatedRow[23] = '0'; // Reset dias sin update\n\nreturn [{ json: {\n  found: true,\n  targetId,\n  rowIndex,\n  stageChanged,\n  oldEtapa,\n  newEtapa,\n  registradorEmail,\n  registradorNombre,\n  referidoNombre,\n  referidoEmail,\n  updatedRow,\n  activityRow: [\n    timestamp,\n    targetId,\n    'Via landing page',\n    oldEtapa,\n    newEtapa,\n    body.notas || '',\n    body.fechaFollowUp || ''\n  ]\n}}];"
+      },
+      "name": "Find and Process",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            { "value1": "={{ $json.found }}", "value2": true }
+          ]
+        }
+      },
+      "name": "Found?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [700, 300]
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://sheets.googleapis.com/v4/spreadsheets/1MOeVop7Ci7F117GjUe7rlmq8aMx8jgmByFooavORUCM/values/Referrals!A{{ $json.rowIndex }}:X{{ $json.rowIndex }}?valueInputOption=USER_ENTERED",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"values\": [{{ JSON.stringify($('Find and Process').first().json.updatedRow) }}] }",
+        "options": {}
+      },
+      "name": "Update Row",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [920, 200],
+      "credentials": {
+        "googleSheetsOAuth2Api": { "id": "ijhDM45kmOOEzqzs", "name": "Google Sheets account" }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://sheets.googleapis.com/v4/spreadsheets/1MOeVop7Ci7F117GjUe7rlmq8aMx8jgmByFooavORUCM/values/Activity%20Log!A:G:append?valueInputOption=USER_ENTERED",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"values\": [{{ JSON.stringify($('Find and Process').first().json.activityRow) }}] }",
+        "options": {}
+      },
+      "name": "Append Activity",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1140, 200],
+      "credentials": {
+        "googleSheetsOAuth2Api": { "id": "ijhDM45kmOOEzqzs", "name": "Google Sheets account" }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: true, id: $('Find and Process').first().json.targetId }) }}",
+        "options": {}
+      },
+      "name": "Respond OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1360, 200]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            { "value1": "={{ $('Find and Process').first().json.stageChanged }}", "value2": true }
+          ]
+        }
+      },
+      "name": "Stage Changed?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1580, 200]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Find and Process').first().json.registradorEmail }}",
+        "subject": "=Referido #{{ $('Find and Process').first().json.targetId }} actualizado: {{ $('Find and Process').first().json.oldEtapa }} → {{ $('Find and Process').first().json.newEtapa }}",
+        "message": "=<h2>Actualizacion de tu referido</h2><p><strong>ID:</strong> #{{ $('Find and Process').first().json.targetId }}</p><p><strong>Referido:</strong> {{ $('Find and Process').first().json.referidoNombre }}</p><p><strong>Etapa anterior:</strong> {{ $('Find and Process').first().json.oldEtapa }}</p><p><strong>Nueva etapa:</strong> {{ $('Find and Process').first().json.newEtapa }}</p><hr><p><small>Green Hub Referral CRM</small></p>",
+        "options": {}
+      },
+      "name": "Email Registrador",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [1800, 100],
+      "credentials": {
+        "gmailOAuth2": { "id": "34ae23XNAsWrUf5I", "name": "Gmail account" }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Find and Process').first().json.referidoEmail }}",
+        "subject": "=Green Hub - Actualizacion sobre tu proceso",
+        "message": "=<div style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto'><h2 style='color:#123840'>Hola {{ $('Find and Process').first().json.referidoNombre }},</h2><p>Queremos informarte que el estado de tu proceso con <strong>Green Hub</strong> ha sido actualizado.</p><p><strong>Estado actual:</strong> {{ $('Find and Process').first().json.newEtapa }}</p><p>Nuestro equipo continua trabajando en tu caso. Si tienes alguna pregunta, no dudes en responder a este correo.</p><br><p>Cordialmente,</p><p><strong>Equipo Green Hub</strong></p><hr style='border:none;border-top:1px solid #e0e0e0;margin:20px 0'><p style='font-size:12px;color:#999'>Este correo fue generado automaticamente por el sistema de referidos de Green Hub.</p></div>",
+        "options": {}
+      },
+      "name": "Email Referido",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [1800, 300],
+      "credentials": {
+        "gmailOAuth2": { "id": "34ae23XNAsWrUf5I", "name": "Gmail account" }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: false, error: $json.error || 'Referido no encontrado' }) }}",
+        "options": {
+          "responseCode": "404"
+        }
+      },
+      "name": "Respond Not Found",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [920, 400]
+    }
+  ],
+  "connections": {
+    "Webhook": { "main": [[{ "node": "Read Referrals", "type": "main", "index": 0 }]] },
+    "Read Referrals": { "main": [[{ "node": "Find and Process", "type": "main", "index": 0 }]] },
+    "Find and Process": { "main": [[{ "node": "Found?", "type": "main", "index": 0 }]] },
+    "Found?": {
+      "main": [
+        [{ "node": "Update Row", "type": "main", "index": 0 }],
+        [{ "node": "Respond Not Found", "type": "main", "index": 0 }]
+      ]
+    },
+    "Update Row": { "main": [[{ "node": "Append Activity", "type": "main", "index": 0 }]] },
+    "Append Activity": { "main": [[{ "node": "Respond OK", "type": "main", "index": 0 }]] },
+    "Respond OK": { "main": [[{ "node": "Stage Changed?", "type": "main", "index": 0 }]] },
+    "Stage Changed?": { "main": [[{ "node": "Email Registrador", "type": "main", "index": 0 }, { "node": "Email Referido", "type": "main", "index": 0 }], []] }
+  },
+  "settings": { "executionOrder": "v1" }
+}

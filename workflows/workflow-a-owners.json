@@ -1,0 +1,54 @@
+{
+  "name": "Referral CRM - GET Owners",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "referral-owners",
+        "responseMode": "lastNode",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              { "name": "Access-Control-Allow-Origin", "value": "*" }
+            ]
+          }
+        }
+      },
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 300],
+      "webhookId": "referral-owners"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://sheets.googleapis.com/v4/spreadsheets/1MOeVop7Ci7F117GjUe7rlmq8aMx8jgmByFooavORUCM/values/Users!A:E",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api",
+        "options": {}
+      },
+      "name": "Read Users",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [260, 300],
+      "credentials": {
+        "googleSheetsOAuth2Api": { "id": "ijhDM45kmOOEzqzs", "name": "Google Sheets account" }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\nconst rows = data.values || [];\nif (rows.length < 2) return [{ json: { owners: [] } }];\n\nconst headers = rows[0];\nconst owners = [];\n\nfor (let i = 1; i < rows.length; i++) {\n  const row = rows[i];\n  const nombre = row[0] || '';\n  const email = row[1] || '';\n  const activo = (row[4] || '').toUpperCase();\n  if (activo === 'TRUE' && email) {\n    owners.push({ name: nombre, email: email });\n  }\n}\n\nreturn [{ json: { owners } }];"
+      },
+      "name": "Filter Active Owners",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": { "main": [[{ "node": "Read Users", "type": "main", "index": 0 }]] },
+    "Read Users": { "main": [[{ "node": "Filter Active Owners", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" }
+}
