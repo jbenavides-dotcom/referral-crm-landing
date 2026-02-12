@@ -11,7 +11,10 @@
       "name": "Webhook",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
-      "position": [0, 300],
+      "position": [
+        0,
+        300
+      ],
       "webhookId": "referral-new"
     },
     {
@@ -25,9 +28,15 @@
       "name": "Read Users",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [260, 300],
+      "position": [
+        260,
+        300
+      ],
       "credentials": {
-        "googleSheetsOAuth2Api": { "id": "ijhDM45kmOOEzqzs", "name": "Google Sheets account" }
+        "googleSheetsOAuth2Api": {
+          "id": "ijhDM45kmOOEzqzs",
+          "name": "Google Sheets account"
+        }
       }
     },
     {
@@ -41,19 +50,28 @@
       "name": "Read Referral IDs",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [480, 300],
+      "position": [
+        480,
+        300
+      ],
       "credentials": {
-        "googleSheetsOAuth2Api": { "id": "ijhDM45kmOOEzqzs", "name": "Google Sheets account" }
+        "googleSheetsOAuth2Api": {
+          "id": "ijhDM45kmOOEzqzs",
+          "name": "Google Sheets account"
+        }
       }
     },
     {
       "parameters": {
-        "jsCode": "const body = $('Webhook').first().json.body;\nconst usersData = $('Read Users').first().json;\nconst idsData = $('Read Referral IDs').first().json;\n\n// Calcular siguiente ID\nconst idRows = (idsData.values || []).slice(1);\nlet maxId = 0;\nfor (const row of idRows) {\n  const id = parseInt(row[0]);\n  if (!isNaN(id) && id > maxId) maxId = id;\n}\nconst newId = maxId + 1;\n\n// Buscar nombre del owner\nconst userRows = (usersData.values || []).slice(1);\nlet ownerNombre = '';\nfor (const row of userRows) {\n  if (row[1] === body.ownerEmail) {\n    ownerNombre = row[0];\n    break;\n  }\n}\n\nconst timestamp = new Date().toISOString();\n\n// Mensaje personalizado por empresa\nconst mensajes = {\n  'La Palma y el Tucan': {\n    titulo: 'La Palma y el Tucan',\n    color: '#2d5016',\n    intro: 'Gracias por tu interes en <strong>La Palma y el Tucan</strong>, donde redefinimos la produccion de cafe especial en Colombia a traves de un enfoque holistico que conecta la tradicion cafetera con la innovacion.',\n    destaque: 'Cultivamos y procesamos varietales excepcionales como <strong>Gesha, Sidra y SL-28</strong> bajo practicas regenerativas. Nuestro cafe ha alcanzado precios record de hasta <strong>$303 USD por libra</strong> y fue el cafe con el que se gano el <strong>World Barista Championship 2019</strong>. Experimentamos con procesos innovadores como la fermentacion con microorganismos de nuestro propio ecosistema.',\n    cierre: 'Nuestro equipo te contactara para explorar como podemos crear valor juntos a traves de nuestro cafe premium y nuestras practicas regenerativas.'\n  },\n  'La Palma y el Tucan Hotel': {\n    titulo: 'La Palma y el Tucan Hotel',\n    color: '#5c3a1e',\n    intro: 'Gracias por tu interes en <strong>La Palma y el Tucan Hotel</strong>, un refugio donde la naturaleza y el aprendizaje se entrelazan en Zipacon, Cundinamarca.',\n    destaque: 'Ofrecemos alojamientos unicos en <strong>cabanas inmersas en cafetales</strong> con experiencias de cafe que promueven la desconexion y el bienestar. Calificados <strong>5.0/5.0 en TripAdvisor</strong> y <strong>9.5/10 en Booking</strong>. Hemos hospedado eventos corporativos para empresas como Skandia Colombia y ofrecemos tours de cafe, clases de barista, yoga y spa.',\n    cierre: 'Nuestro equipo te contactara para disenar una experiencia a tu medida, ya sea una escapada, un evento corporativo o una celebracion especial en un entorno sostenible.'\n  },\n  'Libertario Coffee Roasters': {\n    titulo: 'Libertario Coffee Roasters',\n    color: '#1a1a2e',\n    intro: 'Gracias por tu interes en <strong>Libertario Coffee Roasters</strong>, nuestra marca de cafe premium comprometida con experiencias excepcionales a traves de la calidad, la sostenibilidad y el impacto comunitario.',\n    destaque: 'Nuestro nombre refleja la libertad de explorar y disfrutar del cafe en su forma mas pura. Ofrecemos <strong>cafe tostado, espresso, filtrados, cold brew y reposteria artesanal</strong>. Con presencia en <strong>Bogota, Cartagena, San Jose de Costa Rica y Ciudad de Mexico</strong>. Promovemos el \"Pasillo Libertario\" para dar visibilidad a emprendimientos colombianos.',\n    cierre: 'Nuestro equipo te contactara para explorar oportunidades de colaboracion, ya sea como aliado comercial, proveedor o socio estrategico.'\n  },\n  'Futura Coffee Roasters': {\n    titulo: 'Futura Coffee Roasters',\n    color: '#3d2b1f',\n    intro: 'Gracias por tu interes en <strong>Futura Coffee Roasters</strong>, nuestra tostadora de cafe de especialidad dedicada a la calidad excepcional y la regeneracion del suelo.',\n    destaque: 'Basados en <strong>Estados Unidos</strong>, unimos la calidad del cafe con la regeneracion del suelo. Transformamos la cultura del cafe en experiencias cotidianas y accesibles en coffee shops que combinan diseno contemporaneo con baristas apasionados. Con presencia en <strong>Portland, Oregon y Amherst, Massachusetts</strong>.',\n    cierre: 'Nuestro equipo te contactara para explorar como podemos trabajar juntos y llevar el cafe de especialidad regenerativo a mas personas.'\n  },\n  'Equation Coffee': {\n    titulo: 'Equation Coffee',\n    color: '#2c3e50',\n    intro: 'Gracias por tu interes en <strong>Equation Coffee</strong>, donde impulsamos la conexion global entre productores de cafe y mercados internacionales.',\n    destaque: 'Somos importadores y exportadores de <strong>cafes especiales</strong>, garantizando una cadena de suministro sostenible y responsable. Regeneramos suelos y fortalecemos relaciones en la cadena de valor del cafe, ofreciendo productos de calidad con <strong>transparencia y trazabilidad total</strong>.',\n    cierre: 'Nuestro equipo te contactara para conversar sobre como conectar tu negocio con los mejores cafes de especialidad del ecosistema Green Hub.'\n  },\n  'Delagua Coffee Paradise': {\n    titulo: 'Delagua Coffee Paradise',\n    color: '#1a6b8a',\n    intro: 'Gracias por tu interes en <strong>Delagua Coffee Paradise</strong>, donde cultivamos y procesamos cafe de especialidad con un profundo cuidado del agua y el medio ambiente.',\n    destaque: 'Nuestros metodos de procesamiento <strong>minimizan la huella hidrica</strong>, promoviendo la responsabilidad ecologica en cada taza. Creemos que el mejor cafe nace cuando se respeta cada recurso natural involucrado en su produccion.',\n    cierre: 'Nuestro equipo te contactara para explorar como nuestro cafe consciente con el agua puede aportar valor a tu proyecto.'\n  },\n  'Creativa Coffee District': {\n    titulo: 'Creativa Coffee District',\n    color: '#6b3fa0',\n    intro: 'Gracias por tu interes en <strong>Creativa Coffee District</strong>, un proyecto unico que fusiona la produccion sostenible de cafe con el arte como agente de cambio.',\n    destaque: 'Creamos un espacio donde <strong>la creatividad florece</strong> conectando cultura, arte y produccion sostenible de cafe. Creemos que el arte tiene el poder de transformar comunidades y que el cafe es el vehiculo perfecto para esa transformacion.',\n    cierre: 'Nuestro equipo te contactara para explorar como podemos crear juntos experiencias que conecten cafe, arte y sostenibilidad.'\n  },\n  'Flying Pumas Coffee': {\n    titulo: 'Flying Pumas Coffee',\n    color: '#b8860b',\n    intro: 'Gracias por tu interes en <strong>Flying Pumas Coffee</strong>, un proyecto pionero de cafe ubicado en las montanas de <strong>Chiriqui, Panama</strong>.',\n    destaque: 'Combinamos un cultivo excepcional de cafe con un firme compromiso ambiental. Nuestra mision es producir cafe de alta calidad mientras <strong>protegemos el ecosistema local y la fauna</strong>, particularmente los majestuosos pumas y jaguares que habitan la region. Contamos con <strong>22 lotes de cultivo</strong> en un entorno natural privilegiado.',\n    cierre: 'Nuestro equipo te contactara para conversar sobre como nuestro cafe de Panama con proposito puede ser parte de tu historia.'\n  },\n  'Biodiversal': {\n    titulo: 'Biodiversal S.A.S. BIC',\n    color: '#228b22',\n    intro: 'Gracias por tu interes en <strong>Biodiversal</strong>, nuestra empresa gestora de proyectos de agricultura regenerativa, constituida como Sociedad de Beneficio e Interes Colectivo.',\n    destaque: 'Nuestra mision es elevar la caficultura a un <strong>modelo resiliente de agricultura regenerativa</strong>. Impulsamos la produccion de productos agroecologicos mediante investigacion, co-inversion de impacto, asistencia tecnica y conexion con mercados. Producimos <strong>fertilizantes organicos</strong> (bioreactor, pirolizador, harina de rocas, NPK).',\n    cierre: 'Nuestro equipo te contactara para explorar como las practicas regenerativas pueden transformar tu proyecto agricola.'\n  },\n  'Cirkular Agro': {\n    titulo: 'Cirkular Agro',\n    color: '#0d7377',\n    intro: 'Gracias por tu interes en <strong>Cirkular Agro</strong>, donde impulsamos la transformacion hacia una economia regenerativa mediante soluciones financieras innovadoras.',\n    destaque: 'Proporcionamos a pequenos agricultores los insumos, asistencia tecnica y herramientas para su transicion a la <strong>agricultura regenerativa</strong>. Creamos valor a traves del mercado de <strong>creditos de carbono</strong> y nuestro proyecto <strong>Coffee Biochar</strong> transforma residuos del cafetal en insumos regenerativos para el suelo.',\n    cierre: 'Nuestro equipo te contactara para explorar como las soluciones financieras regenerativas pueden potenciar tu proyecto.'\n  },\n  'The Coffee Hub': {\n    titulo: 'The Coffee Hub',\n    color: '#4a4a4a',\n    intro: 'Gracias por tu interes en <strong>The Coffee Hub</strong>, la plataforma operativa central del ecosistema Green Hub.',\n    destaque: 'Gestionamos <strong>operaciones compartidas, talento humano y recursos</strong> entre las 12 marcas del grupo. Somos el nucleo desde donde se coordinan las actividades de calidad, logistica y capital humano para todo el ecosistema.',\n    cierre: 'Nuestro equipo te contactara para conversar sobre como podemos colaborar desde el corazon operativo del grupo.'\n  },\n  'Radikal Food Club': {\n    titulo: 'Radikal Food Club',\n    color: '#c62828',\n    intro: 'Gracias por tu interes en <strong>Radikal Food Club</strong>, la propuesta gastronomica del ecosistema Green Hub.',\n    destaque: 'En Radikal fusionamos la <strong>gastronomia con la sostenibilidad</strong>, llevando la filosofia del ecosistema Green Hub a la mesa. Somos parte de un grupo de 12 empresas dedicadas a la regeneracion ambiental y la innovacion, con presencia en Colombia, Panama, Estados Unidos, Costa Rica y Mexico.',\n    cierre: 'Nuestro equipo te contactara para explorar como podemos colaborar y crear experiencias gastronomicas con proposito.'\n  },\n  'Green Hub': {\n    titulo: 'El Green Hub - Ecosistema Empresarial',\n    color: '#123840',\n    intro: 'Gracias por tu interes en <strong>El Green Hub</strong>, un ecosistema de <strong>12 empresas</strong> dedicado a la regeneracion ambiental y la sostenibilidad.',\n    destaque: 'Con <strong>14 anos de innovacion</strong>, impactamos a <strong>1,617 familias</strong> con 346 empleados en Colombia, Panama, Estados Unidos, Costa Rica y Mexico. Conectamos proyectos de agricultura regenerativa, cafe de especialidad, economia circular y conservacion de la biodiversidad. Nuestra mision: dejar un planeta biodiverso y habitable para las futuras generaciones.',\n    cierre: 'Nuestro equipo te contactara para identificar como tu perfil encaja mejor en nuestro ecosistema y como podemos generar oportunidades juntos.'\n  }\n};\n\nconst empresa = body.empresa || '';\nconst msg = mensajes[empresa] || {\n  titulo: empresa || 'Green Hub',\n  color: '#123840',\n  intro: 'Gracias por tu interes en <strong>' + (empresa || 'nuestro ecosistema') + '</strong>, parte del grupo empresarial Green Hub.',\n  destaque: 'Formamos parte de un ecosistema de 12 empresas enfocadas en sostenibilidad, innovacion y excelencia.',\n  cierre: 'Nuestro equipo te contactara proximamente para conversar sobre como podemos trabajar juntos.'\n};\n\nreturn [{ json: {\n  newId,\n  ownerNombre,\n  timestamp,\n  body,\n  mensajeEmpresa: msg,\n  row: [\n    newId,\n    timestamp,\n    body.empresa || '',\n    body.tipoReferido || '',\n    body.nombre || '',\n    body.empresaReferido || '',\n    body.email || '',\n    body.telefono || '',\n    body.pais || '',\n    body.linkedin || '',\n    body.objetivo || '',\n    body.valorPotencial || '',\n    body.ownerEmail || '',\n    ownerNombre,\n    body.tuEmail || '',\n    body.tuNombre || '',\n    'Nuevo',\n    timestamp,\n    '',\n    '',\n    '',\n    '',\n    body.notas || '',\n    '0'\n  ],\n  activityRow: [\n    timestamp,\n    newId,\n    body.tuNombre + ' (' + body.tuEmail + ')',\n    '',\n    'Nuevo',\n    'Referido registrado via landing page',\n    ''\n  ]\n}}];"
+        "jsCode": "const body = $('Webhook').first().json.body;\nconst usersData = $('Read Users').first().json;\nconst idsData = $('Read Referral IDs').first().json;\n\n// Calcular siguiente ID\nconst idRows = (idsData.values || []).slice(1);\nlet maxId = 0;\nfor (const row of idRows) {\n  const id = parseInt(row[0]);\n  if (!isNaN(id) && id > maxId) maxId = id;\n}\nconst newId = maxId + 1;\n\n// Buscar nombre del owner\nconst userRows = (usersData.values || []).slice(1);\nlet ownerNombre = '';\nfor (const row of userRows) {\n  if (row[1] === body.ownerEmail) {\n    ownerNombre = row[0];\n    break;\n  }\n}\n\nconst timestamp = new Date().toISOString();\n\n// Mensaje personalizado por empresa\nconst mensajes = {\n  'La Hacienda La Palma y el Tucan': {\n    titulo: 'La Hacienda La Palma y el Tucan',\n    color: '#2d5016',\n    intro: 'Gracias por tu interes en <strong>La Hacienda La Palma y el Tucan</strong>, donde redefinimos la produccion de cafe especial en Colombia a traves de un enfoque holistico que conecta la tradicion cafetera con la innovacion.',\n    destaque: 'Cultivamos y procesamos varietales excepcionales como <strong>Gesha, Sidra y SL-28</strong> bajo practicas regenerativas. Nuestro cafe ha alcanzado precios record de hasta <strong>$303 USD por libra</strong> y fue el cafe con el que se gano el <strong>World Barista Championship 2019</strong>. Experimentamos con procesos innovadores como la fermentacion con microorganismos de nuestro propio ecosistema.',\n    cierre: 'Nuestro equipo te contactara para explorar como podemos crear valor juntos a traves de nuestro cafe premium y nuestras practicas regenerativas.'\n  },\n  'La Palma y el Tucan Hotel': {\n    titulo: 'La Palma y el Tucan Hotel',\n    color: '#5c3a1e',\n    intro: 'Gracias por tu interes en <strong>La Palma y el Tucan Hotel</strong>, un refugio donde la naturaleza y el aprendizaje se entrelazan en Zipacon, Cundinamarca.',\n    destaque: 'Ofrecemos alojamientos unicos en <strong>cabanas inmersas en cafetales</strong> con experiencias de cafe que promueven la desconexion y el bienestar. Calificados <strong>5.0/5.0 en TripAdvisor</strong> y <strong>9.5/10 en Booking</strong>. Hemos hospedado eventos corporativos para empresas como Skandia Colombia y ofrecemos tours de cafe, clases de barista, yoga y spa.',\n    cierre: 'Nuestro equipo te contactara para disenar una experiencia a tu medida, ya sea una escapada, un evento corporativo o una celebracion especial en un entorno sostenible.'\n  },\n  'Libertario Coffee Roasters': {\n    titulo: 'Libertario Coffee Roasters',\n    color: '#1a1a2e',\n    intro: 'Gracias por tu interes en <strong>Libertario Coffee Roasters</strong>, nuestra marca de cafe premium comprometida con experiencias excepcionales a traves de la calidad, la sostenibilidad y el impacto comunitario.',\n    destaque: 'Nuestro nombre refleja la libertad de explorar y disfrutar del cafe en su forma mas pura. Ofrecemos <strong>cafe tostado, espresso, filtrados, cold brew y reposteria artesanal</strong>. Con presencia en <strong>Bogota, Cartagena, San Jose de Costa Rica y Ciudad de Mexico</strong>. Promovemos el \"Pasillo Libertario\" para dar visibilidad a emprendimientos colombianos.',\n    cierre: 'Nuestro equipo te contactara para explorar oportunidades de colaboracion, ya sea como aliado comercial, proveedor o socio estrategico.'\n  },\n  'Futura Coffee Roasters': {\n    titulo: 'Futura Coffee Roasters',\n    color: '#3d2b1f',\n    intro: 'Gracias por tu interes en <strong>Futura Coffee Roasters</strong>, nuestra tostadora de cafe de especialidad dedicada a la calidad excepcional y la regeneracion del suelo.',\n    destaque: 'Basados en <strong>Estados Unidos</strong>, unimos la calidad del cafe con la regeneracion del suelo. Transformamos la cultura del cafe en experiencias cotidianas y accesibles en coffee shops que combinan diseno contemporaneo con baristas apasionados. Con presencia en <strong>Portland, Oregon y Amherst, Massachusetts</strong>.',\n    cierre: 'Nuestro equipo te contactara para explorar como podemos trabajar juntos y llevar el cafe de especialidad regenerativo a mas personas.'\n  },\n  'Equation Coffee': {\n    titulo: 'Equation Coffee',\n    color: '#2c3e50',\n    intro: 'Gracias por tu interes en <strong>Equation Coffee</strong>, donde impulsamos la conexion global entre productores de cafe y mercados internacionales.',\n    destaque: 'Somos importadores y exportadores de <strong>cafes especiales</strong>, garantizando una cadena de suministro sostenible y responsable. Regeneramos suelos y fortalecemos relaciones en la cadena de valor del cafe, ofreciendo productos de calidad con <strong>transparencia y trazabilidad total</strong>.',\n    cierre: 'Nuestro equipo te contactara para conversar sobre como conectar tu negocio con los mejores cafes de especialidad del ecosistema Green Hub.'\n  },\n  'Delagua Coffee Paradise': {\n    titulo: 'Delagua Coffee Paradise',\n    color: '#1a6b8a',\n    intro: 'Gracias por tu interes en <strong>Delagua Coffee Paradise</strong>, donde cultivamos y procesamos cafe de especialidad con un profundo cuidado del agua y el medio ambiente.',\n    destaque: 'Nuestros metodos de procesamiento <strong>minimizan la huella hidrica</strong>, promoviendo la responsabilidad ecologica en cada taza. Creemos que el mejor cafe nace cuando se respeta cada recurso natural involucrado en su produccion.',\n    cierre: 'Nuestro equipo te contactara para explorar como nuestro cafe consciente con el agua puede aportar valor a tu proyecto.'\n  },\n  'Creativa Coffee District': {\n    titulo: 'Creativa Coffee District',\n    color: '#6b3fa0',\n    intro: 'Gracias por tu interes en <strong>Creativa Coffee District</strong>, un proyecto unico que fusiona la produccion sostenible de cafe con el arte como agente de cambio.',\n    destaque: 'Creamos un espacio donde <strong>la creatividad florece</strong> conectando cultura, arte y produccion sostenible de cafe. Creemos que el arte tiene el poder de transformar comunidades y que el cafe es el vehiculo perfecto para esa transformacion.',\n    cierre: 'Nuestro equipo te contactara para explorar como podemos crear juntos experiencias que conecten cafe, arte y sostenibilidad.'\n  },\n  'Flying Pumas Coffee': {\n    titulo: 'Flying Pumas Coffee',\n    color: '#b8860b',\n    intro: 'Gracias por tu interes en <strong>Flying Pumas Coffee</strong>, un proyecto pionero de cafe ubicado en las montanas de <strong>Chiriqui, Panama</strong>.',\n    destaque: 'Combinamos un cultivo excepcional de cafe con un firme compromiso ambiental. Nuestra mision es producir cafe de alta calidad mientras <strong>protegemos el ecosistema local y la fauna</strong>, particularmente los majestuosos pumas y jaguares que habitan la region. Contamos con <strong>22 lotes de cultivo</strong> en un entorno natural privilegiado.',\n    cierre: 'Nuestro equipo te contactara para conversar sobre como nuestro cafe de Panama con proposito puede ser parte de tu historia.'\n  },\n  'Biodiversal': {\n    titulo: 'Biodiversal S.A.S. BIC',\n    color: '#228b22',\n    intro: 'Gracias por tu interes en <strong>Biodiversal</strong>, nuestra empresa gestora de proyectos de agricultura regenerativa, constituida como Sociedad de Beneficio e Interes Colectivo.',\n    destaque: 'Nuestra mision es elevar la caficultura a un <strong>modelo resiliente de agricultura regenerativa</strong>. Impulsamos la produccion de productos agroecologicos mediante investigacion, co-inversion de impacto, asistencia tecnica y conexion con mercados. Producimos <strong>fertilizantes organicos</strong> (bioreactor, pirolizador, harina de rocas, NPK).',\n    cierre: 'Nuestro equipo te contactara para explorar como las practicas regenerativas pueden transformar tu proyecto agricola.'\n  },\n  'Cirkular Agro': {\n    titulo: 'Cirkular Agro',\n    color: '#0d7377',\n    intro: 'Gracias por tu interes en <strong>Cirkular Agro</strong>, donde impulsamos la transformacion hacia una economia regenerativa mediante soluciones financieras innovadoras.',\n    destaque: 'Proporcionamos a pequenos agricultores los insumos, asistencia tecnica y herramientas para su transicion a la <strong>agricultura regenerativa</strong>. Creamos valor a traves del mercado de <strong>creditos de carbono</strong> y nuestro proyecto <strong>Coffee Biochar</strong> transforma residuos del cafetal en insumos regenerativos para el suelo.',\n    cierre: 'Nuestro equipo te contactara para explorar como las soluciones financieras regenerativas pueden potenciar tu proyecto.'\n  },\n  'The Coffee Hub': {\n    titulo: 'The Coffee Hub',\n    color: '#4a4a4a',\n    intro: 'Gracias por tu interes en <strong>The Coffee Hub</strong>, la plataforma operativa central del ecosistema Green Hub.',\n    destaque: 'Gestionamos <strong>operaciones compartidas, talento humano y recursos</strong> entre las 12 marcas del grupo. Somos el nucleo desde donde se coordinan las actividades de calidad, logistica y capital humano para todo el ecosistema.',\n    cierre: 'Nuestro equipo te contactara para conversar sobre como podemos colaborar desde el corazon operativo del grupo.'\n  },\n  'Radikal Food Club': {\n    titulo: 'Radikal Food Club',\n    color: '#c62828',\n    intro: 'Gracias por tu interes en <strong>Radikal Food Club</strong>, la propuesta gastronomica del ecosistema Green Hub.',\n    destaque: 'En Radikal fusionamos la <strong>gastronomia con la sostenibilidad</strong>, llevando la filosofia del ecosistema Green Hub a la mesa. Somos parte de un grupo de 12 empresas dedicadas a la regeneracion ambiental y la innovacion, con presencia en Colombia, Panama, Estados Unidos, Costa Rica y Mexico.',\n    cierre: 'Nuestro equipo te contactara para explorar como podemos colaborar y crear experiencias gastronomicas con proposito.'\n  },\n  'Green Hub': {\n    titulo: 'El Green Hub - Ecosistema Empresarial',\n    color: '#123840',\n    intro: 'Gracias por tu interes en <strong>El Green Hub</strong>, un ecosistema de <strong>12 empresas</strong> dedicado a la regeneracion ambiental y la sostenibilidad.',\n    destaque: 'Con <strong>14 anos de innovacion</strong>, impactamos a <strong>1,617 familias</strong> con 346 empleados en Colombia, Panama, Estados Unidos, Costa Rica y Mexico. Conectamos proyectos de agricultura regenerativa, cafe de especialidad, economia circular y conservacion de la biodiversidad. Nuestra mision: dejar un planeta biodiverso y habitable para las futuras generaciones.',\n    cierre: 'Nuestro equipo te contactara para identificar como tu perfil encaja mejor en nuestro ecosistema y como podemos generar oportunidades juntos.'\n  }\n};\n\nconst empresa = body.empresa || '';\nconst msg = mensajes[empresa] || {\n  titulo: empresa || 'Green Hub',\n  color: '#123840',\n  intro: 'Gracias por tu interes en <strong>' + (empresa || 'nuestro ecosistema') + '</strong>, parte del grupo empresarial Green Hub.',\n  destaque: 'Formamos parte de un ecosistema de 12 empresas enfocadas en sostenibilidad, innovacion y excelencia.',\n  cierre: 'Nuestro equipo te contactara proximamente para conversar sobre como podemos trabajar juntos.'\n};\n\nreturn [{ json: {\n  newId,\n  ownerNombre,\n  timestamp,\n  body,\n  mensajeEmpresa: msg,\n  row: [\n    newId,\n    timestamp,\n    body.empresa || '',\n    body.tipoReferido || '',\n    body.nombre || '',\n    body.empresaReferido || '',\n    body.email || '',\n    body.telefono || '',\n    body.pais || '',\n    body.linkedin || '',\n    body.objetivo || '',\n    body.valorPotencial || '',\n    body.ownerEmail || '',\n    ownerNombre,\n    body.tuEmail || '',\n    body.tuNombre || '',\n    'Nuevo',\n    timestamp,\n    '',\n    '',\n    '',\n    '',\n    body.notas || '',\n    '0'\n  ],\n  activityRow: [\n    timestamp,\n    newId,\n    body.tuNombre + ' (' + body.tuEmail + ')',\n    '',\n    'Nuevo',\n    'Referido registrado via landing page',\n    ''\n  ]\n}}];"
       },
       "name": "Process Data",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [700, 300]
+      "position": [
+        700,
+        300
+      ]
     },
     {
       "parameters": {
@@ -69,9 +87,15 @@
       "name": "Append Referral",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [920, 300],
+      "position": [
+        920,
+        300
+      ],
       "credentials": {
-        "googleSheetsOAuth2Api": { "id": "ijhDM45kmOOEzqzs", "name": "Google Sheets account" }
+        "googleSheetsOAuth2Api": {
+          "id": "ijhDM45kmOOEzqzs",
+          "name": "Google Sheets account"
+        }
       }
     },
     {
@@ -88,9 +112,15 @@
       "name": "Append Activity Log",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1140, 300],
+      "position": [
+        1140,
+        300
+      ],
       "credentials": {
-        "googleSheetsOAuth2Api": { "id": "ijhDM45kmOOEzqzs", "name": "Google Sheets account" }
+        "googleSheetsOAuth2Api": {
+          "id": "ijhDM45kmOOEzqzs",
+          "name": "Google Sheets account"
+        }
       }
     },
     {
@@ -102,7 +132,10 @@
       "name": "Respond OK",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
-      "position": [1360, 300]
+      "position": [
+        1360,
+        300
+      ]
     },
     {
       "parameters": {
@@ -114,9 +147,15 @@
       "name": "Email Owner",
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
-      "position": [1580, 200],
+      "position": [
+        1580,
+        200
+      ],
       "credentials": {
-        "gmailOAuth2": { "id": "34ae23XNAsWrUf5I", "name": "Gmail account" }
+        "gmailOAuth2": {
+          "id": "34ae23XNAsWrUf5I",
+          "name": "Gmail account"
+        }
       }
     },
     {
@@ -129,9 +168,15 @@
       "name": "Email Registrador",
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
-      "position": [1580, 400],
+      "position": [
+        1580,
+        400
+      ],
       "credentials": {
-        "gmailOAuth2": { "id": "34ae23XNAsWrUf5I", "name": "Gmail account" }
+        "gmailOAuth2": {
+          "id": "34ae23XNAsWrUf5I",
+          "name": "Gmail account"
+        }
       }
     },
     {
@@ -144,20 +189,108 @@
       "name": "Email Referido",
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
-      "position": [1580, 600],
+      "position": [
+        1580,
+        600
+      ],
       "credentials": {
-        "gmailOAuth2": { "id": "34ae23XNAsWrUf5I", "name": "Gmail account" }
+        "gmailOAuth2": {
+          "id": "34ae23XNAsWrUf5I",
+          "name": "Gmail account"
+        }
       }
     }
   ],
   "connections": {
-    "Webhook": { "main": [[{ "node": "Read Users", "type": "main", "index": 0 }]] },
-    "Read Users": { "main": [[{ "node": "Read Referral IDs", "type": "main", "index": 0 }]] },
-    "Read Referral IDs": { "main": [[{ "node": "Process Data", "type": "main", "index": 0 }]] },
-    "Process Data": { "main": [[{ "node": "Append Referral", "type": "main", "index": 0 }]] },
-    "Append Referral": { "main": [[{ "node": "Append Activity Log", "type": "main", "index": 0 }]] },
-    "Append Activity Log": { "main": [[{ "node": "Respond OK", "type": "main", "index": 0 }]] },
-    "Respond OK": { "main": [[{ "node": "Email Owner", "type": "main", "index": 0 }, { "node": "Email Registrador", "type": "main", "index": 0 }, { "node": "Email Referido", "type": "main", "index": 0 }]] }
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Read Users",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Users": {
+      "main": [
+        [
+          {
+            "node": "Read Referral IDs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Referral IDs": {
+      "main": [
+        [
+          {
+            "node": "Process Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Data": {
+      "main": [
+        [
+          {
+            "node": "Append Referral",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append Referral": {
+      "main": [
+        [
+          {
+            "node": "Append Activity Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append Activity Log": {
+      "main": [
+        [
+          {
+            "node": "Respond OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond OK": {
+      "main": [
+        [
+          {
+            "node": "Email Owner",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Email Registrador",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Email Referido",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
   },
-  "settings": { "executionOrder": "v1" }
+  "settings": {
+    "executionOrder": "v1"
+  }
 }
