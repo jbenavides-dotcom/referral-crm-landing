@@ -818,15 +818,15 @@
             </div>
           </div>
 
-          <p class="form-section-title">Tu informacion</p>
+          <p class="form-section-title">Quien registra</p>
           <div class="form-row">
             <div class="form-group">
-              <label>Tu Nombre <span class="req">*</span></label>
-              <input type="text" name="tuNombre" required placeholder="Tu nombre completo">
+              <label>Nombre del registrador <span class="req">*</span></label>
+              <input type="text" name="tuNombre" id="registrador-nombre" required placeholder="Tu nombre completo">
             </div>
             <div class="form-group">
-              <label>Tu Email <span class="req">*</span></label>
-              <input type="email" name="tuEmail" required placeholder="tu@email.com">
+              <label>Correo del registrador <span class="req">*</span></label>
+              <input type="email" name="tuEmail" id="registrador-email" required placeholder="tu@email.com">
             </div>
           </div>
           <div class="form-row full">
@@ -1024,6 +1024,12 @@
     function resetAndClose(type) {
       showState(type, 'form');
       document.getElementById('form-' + type).reset();
+      if (type === 'new') {
+        var nombreInput = document.getElementById('registrador-nombre');
+        var emailInput = document.getElementById('registrador-email');
+        if (nombreInput) { nombreInput.readOnly = false; nombreInput.style.backgroundColor = ''; }
+        if (emailInput) { emailInput.readOnly = false; emailInput.style.backgroundColor = ''; }
+      }
       closeModal(type);
     }
 
@@ -1089,7 +1095,10 @@
         });
     }
 
+    var ownersList = [];
+
     function populateOwners(owners) {
+      ownersList = owners;
       var select = document.getElementById('owner-select');
       var skeleton = document.getElementById('owner-skeleton');
       select.innerHTML = '<option value="">Seleccionar owner...</option>';
@@ -1099,8 +1108,35 @@
         opt.textContent = o.name + ' (' + o.email + ')';
         select.appendChild(opt);
       });
+      var otroOpt = document.createElement('option');
+      otroOpt.value = '_otro';
+      otroOpt.textContent = 'Otro (no estoy en la lista)';
+      select.appendChild(otroOpt);
       if (skeleton) skeleton.style.display = 'none';
       select.style.display = '';
+
+      select.addEventListener('change', function() {
+        var nombreInput = document.getElementById('registrador-nombre');
+        var emailInput = document.getElementById('registrador-email');
+        if (this.value === '_otro' || this.value === '') {
+          nombreInput.value = '';
+          emailInput.value = '';
+          nombreInput.readOnly = false;
+          emailInput.readOnly = false;
+          nombreInput.style.backgroundColor = '';
+          emailInput.style.backgroundColor = '';
+        } else {
+          var owner = ownersList.find(function(o) { return o.email === select.value; });
+          if (owner) {
+            nombreInput.value = owner.name;
+            emailInput.value = owner.email;
+            nombreInput.readOnly = true;
+            emailInput.readOnly = true;
+            nombreInput.style.backgroundColor = '#f0faf5';
+            emailInput.style.backgroundColor = '#f0faf5';
+          }
+        }
+      });
     }
 
     // ===== VALIDACION =====
@@ -1142,7 +1178,7 @@
         linkedin: form.linkedin.value.trim(),
         objetivo: form.objetivo.value.trim(),
         valorPotencial: form.valorPotencial.value.trim(),
-        ownerEmail: form.ownerEmail.value,
+        ownerEmail: form.ownerEmail.value === '_otro' ? form.tuEmail.value.trim() : form.ownerEmail.value,
         tuNombre: form.tuNombre.value.trim(),
         tuEmail: form.tuEmail.value.trim(),
         notas: form.notas.value.trim()
