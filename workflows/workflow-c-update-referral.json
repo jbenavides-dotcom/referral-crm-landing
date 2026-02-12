@@ -32,7 +32,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const body = $('Webhook').first().json.body;\nconst data = $input.first().json;\nconst rows = data.values || [];\nif (rows.length < 2) return [{ json: { found: false, error: 'No hay referidos registrados' } }];\n\nconst targetId = parseInt(body.referralId);\nif (isNaN(targetId)) return [{ json: { found: false, error: 'ID invalido' } }];\n\n// Buscar fila por ID (columna A)\nlet rowIndex = -1;\nlet existingRow = null;\nfor (let i = 1; i < rows.length; i++) {\n  if (parseInt(rows[i][0]) === targetId) {\n    rowIndex = i + 1; // 1-indexed for Sheets API\n    existingRow = rows[i];\n    break;\n  }\n}\n\nif (rowIndex === -1) return [{ json: { found: false, error: 'Referido #' + targetId + ' no encontrado' } }];\n\nconst timestamp = new Date().toISOString();\nconst oldEtapa = existingRow[16] || 'Nuevo';\nconst newEtapa = body.nuevaEtapa || oldEtapa;\nconst stageChanged = oldEtapa !== newEtapa;\nconst registradorEmail = existingRow[14] || '';\nconst registradorNombre = existingRow[15] || '';\nconst referidoNombre = existingRow[4] || '';\nconst referidoEmail = existingRow[6] || '';\n\n// Preparar valores actualizados (columnas Q a X = indices 16-23)\nconst updatedRow = [...existingRow];\nupdatedRow[16] = newEtapa; // Etapa\nupdatedRow[17] = timestamp; // Ultima Actualizacion\nupdatedRow[18] = body.proximoPaso || existingRow[18] || ''; // Proximo Paso\nupdatedRow[19] = body.fechaFollowUp || existingRow[19] || ''; // Fecha Follow-up\nif (newEtapa === 'Cerrado-Ganado') updatedRow[20] = 'Ganado';\nelse if (newEtapa === 'Cerrado-Perdido') updatedRow[20] = 'Perdido';\nupdatedRow[21] = body.razonCierre || existingRow[21] || ''; // Razon Cierre\nif (body.notas) updatedRow[22] = (existingRow[22] || '') + '\\n[' + timestamp.split('T')[0] + '] ' + body.notas;\nupdatedRow[23] = '0'; // Reset dias sin update\n\nreturn [{ json: {\n  found: true,\n  targetId,\n  rowIndex,\n  stageChanged,\n  oldEtapa,\n  newEtapa,\n  registradorEmail,\n  registradorNombre,\n  referidoNombre,\n  referidoEmail,\n  updatedRow,\n  activityRow: [\n    timestamp,\n    targetId,\n    'Via landing page',\n    oldEtapa,\n    newEtapa,\n    body.notas || '',\n    body.fechaFollowUp || ''\n  ]\n}}];"
+        "jsCode": "const body = $('Webhook').first().json.body;\nconst data = $input.first().json;\nconst rows = data.values || [];\nif (rows.length < 2) return [{ json: { found: false, error: 'No hay referidos registrados' } }];\n\nconst targetId = parseInt(body.referralId);\nif (isNaN(targetId)) return [{ json: { found: false, error: 'ID invalido' } }];\n\n// Buscar fila por ID (columna A)\nlet rowIndex = -1;\nlet existingRow = null;\nfor (let i = 1; i < rows.length; i++) {\n  if (parseInt(rows[i][0]) === targetId) {\n    rowIndex = i + 1; // 1-indexed for Sheets API\n    existingRow = rows[i];\n    break;\n  }\n}\n\nif (rowIndex === -1) return [{ json: { found: false, error: 'Referido #' + targetId + ' no encontrado' } }];\n\nconst timestamp = new Date().toISOString();\nconst oldEtapa = existingRow[16] || 'Nuevo';\nconst newEtapa = body.nuevaEtapa || oldEtapa;\nconst stageChanged = oldEtapa !== newEtapa;\nconst registradorEmail = existingRow[14] || '';\nconst registradorNombre = existingRow[15] || '';\nconst referidoNombre = existingRow[4] || '';\nconst referidoEmail = existingRow[6] || '';\n\n// Preparar valores actualizados (columnas Q a X = indices 16-23)\nconst updatedRow = [...existingRow];\nupdatedRow[16] = newEtapa; // Etapa\nupdatedRow[17] = timestamp; // Ultima Actualizacion\nupdatedRow[18] = body.proximoPaso || existingRow[18] || ''; // Proximo Paso\nupdatedRow[19] = body.fechaFollowUp || existingRow[19] || ''; // Fecha Follow-up\nif (newEtapa === 'Cerrado-Ganado') updatedRow[20] = 'Ganado';\nelse if (newEtapa === 'Cerrado-Perdido') updatedRow[20] = 'Perdido';\nupdatedRow[21] = body.razonCierre || existingRow[21] || ''; // Razon Cierre\nif (body.notas) updatedRow[22] = (existingRow[22] || '') + '\\n[' + timestamp.split('T')[0] + '] ' + body.notas;\nupdatedRow[23] = '0'; // Reset dias sin update\n\n// Campos para archivado de cerrados\nconst isClosed = (newEtapa === 'Cerrado-Ganado' || newEtapa === 'Cerrado-Perdido');\nconst targetSheet = newEtapa === 'Cerrado-Ganado' ? 'Exitosos' : (newEtapa === 'Cerrado-Perdido' ? 'Fracasos' : '');\nconst rowIndex0 = rowIndex - 1; // 0-indexed para deleteDimension API\n\nreturn [{ json: {\n  found: true,\n  targetId,\n  rowIndex,\n  stageChanged,\n  oldEtapa,\n  newEtapa,\n  registradorEmail,\n  registradorNombre,\n  referidoNombre,\n  referidoEmail,\n  updatedRow,\n  isClosed,\n  targetSheet,\n  rowIndex0,\n  activityRow: [\n    timestamp,\n    targetId,\n    'Via landing page',\n    oldEtapa,\n    newEtapa,\n    body.notas || '',\n    body.fechaFollowUp || ''\n  ]\n}}];"
       },
       "name": "Find and Process",
       "type": "n8n-nodes-base.code",
@@ -92,6 +92,57 @@
     },
     {
       "parameters": {
+        "conditions": {
+          "boolean": [
+            { "value1": "={{ $('Find and Process').first().json.isClosed }}", "value2": true }
+          ]
+        }
+      },
+      "name": "Is Closed?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1360, 200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://sheets.googleapis.com/v4/spreadsheets/1MOeVop7Ci7F117GjUe7rlmq8aMx8jgmByFooavORUCM/values/{{ $('Find and Process').first().json.targetSheet }}!A:X:append?valueInputOption=USER_ENTERED",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"values\": [{{ JSON.stringify($('Find and Process').first().json.updatedRow) }}] }",
+        "options": {}
+      },
+      "name": "Append to Archive",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1580, 100],
+      "credentials": {
+        "googleSheetsOAuth2Api": { "id": "ijhDM45kmOOEzqzs", "name": "Google Sheets account" }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://sheets.googleapis.com/v4/spreadsheets/1MOeVop7Ci7F117GjUe7rlmq8aMx8jgmByFooavORUCM:batchUpdate",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"requests\": [{ \"deleteDimension\": { \"range\": { \"sheetId\": 0, \"dimension\": \"ROWS\", \"startIndex\": {{ $('Find and Process').first().json.rowIndex0 }}, \"endIndex\": {{ $('Find and Process').first().json.rowIndex0 + 1 }} } } }] }",
+        "options": {}
+      },
+      "name": "Delete from Referrals",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1800, 100],
+      "credentials": {
+        "googleSheetsOAuth2Api": { "id": "ijhDM45kmOOEzqzs", "name": "Google Sheets account" }
+      }
+    },
+    {
+      "parameters": {
         "respondWith": "json",
         "responseBody": "={{ JSON.stringify({ success: true, id: $('Find and Process').first().json.targetId }) }}",
         "options": {}
@@ -99,7 +150,7 @@
       "name": "Respond OK",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
-      "position": [1360, 200]
+      "position": [2020, 200]
     },
     {
       "parameters": {
@@ -112,7 +163,7 @@
       "name": "Stage Changed?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 1,
-      "position": [1580, 200]
+      "position": [2240, 200]
     },
     {
       "parameters": {
@@ -124,7 +175,7 @@
       "name": "Email Registrador",
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
-      "position": [1800, 100],
+      "position": [2460, 100],
       "credentials": {
         "gmailOAuth2": { "id": "34ae23XNAsWrUf5I", "name": "Gmail account" }
       }
@@ -139,7 +190,7 @@
       "name": "Email Referido",
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
-      "position": [1800, 300],
+      "position": [2460, 300],
       "credentials": {
         "gmailOAuth2": { "id": "34ae23XNAsWrUf5I", "name": "Gmail account" }
       }
@@ -169,7 +220,15 @@
       ]
     },
     "Update Row": { "main": [[{ "node": "Append Activity", "type": "main", "index": 0 }]] },
-    "Append Activity": { "main": [[{ "node": "Respond OK", "type": "main", "index": 0 }]] },
+    "Append Activity": { "main": [[{ "node": "Is Closed?", "type": "main", "index": 0 }]] },
+    "Is Closed?": {
+      "main": [
+        [{ "node": "Append to Archive", "type": "main", "index": 0 }],
+        [{ "node": "Respond OK", "type": "main", "index": 0 }]
+      ]
+    },
+    "Append to Archive": { "main": [[{ "node": "Delete from Referrals", "type": "main", "index": 0 }]] },
+    "Delete from Referrals": { "main": [[{ "node": "Respond OK", "type": "main", "index": 0 }]] },
     "Respond OK": { "main": [[{ "node": "Stage Changed?", "type": "main", "index": 0 }]] },
     "Stage Changed?": { "main": [[{ "node": "Email Registrador", "type": "main", "index": 0 }, { "node": "Email Referido", "type": "main", "index": 0 }], []] }
   },
