@@ -185,7 +185,7 @@
         "respondWith": "json",
         "responseBody": "={{ JSON.stringify({ success: false, error: $json.error || 'Referido no encontrado' }) }}",
         "options": {
-          "responseCode": "404"
+          "responseCode": 404
         }
       },
       "name": "Respond Not Found",
