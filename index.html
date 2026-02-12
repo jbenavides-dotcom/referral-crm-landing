@@ -366,8 +366,21 @@
     .form-group textarea { resize: vertical; min-height: 80px; }
     .form-group select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath fill='%23160e08' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1rem center; padding-right: 2.5rem; }
     .form-group .field-hint { font-size: .75rem; color: var(--texto-terciario); }
-    .form-group .field-error { font-size: .75rem; color: var(--rojo-error); display: none; }
-    .form-group .field-error.visible { display: block; }
+    .form-group .field-error { font-size: .75rem; color: var(--rojo-error); display: none; margin-top: .25rem; }
+    .form-group .field-error.visible { display: block; animation: shakeIn .3s ease; }
+    .form-error-banner {
+      display: none; background: var(--rojo-fondo); border: 1px solid rgba(231,76,60,.25);
+      border-radius: .75rem; padding: .75rem 1rem; margin-bottom: 1rem;
+      font-size: .85rem; color: var(--rojo-error); align-items: center; gap: .5rem;
+    }
+    .form-error-banner.visible { display: flex; animation: shakeIn .4s ease; }
+    .form-error-banner svg { width: 1.125rem; height: 1.125rem; fill: var(--rojo-error); flex-shrink: 0; }
+    @keyframes shakeIn {
+      0% { transform: translateX(-6px); opacity: 0; }
+      25% { transform: translateX(4px); }
+      50% { transform: translateX(-2px); }
+      100% { transform: translateX(0); opacity: 1; }
+    }
 
     .modal-footer {
       padding: 1.25rem 2rem; border-top: 1px solid var(--borde-suave);
@@ -725,15 +738,21 @@
       <!-- Estado: Formulario -->
       <div class="modal-body" id="new-form-state">
         <form id="form-new" onsubmit="return false;">
+          <div class="form-error-banner" id="new-validation-banner">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+            <span id="new-validation-msg">Completa los campos obligatorios marcados en rojo</span>
+          </div>
           <p class="form-section-title">Datos del referido</p>
           <div class="form-row">
             <div class="form-group">
               <label>Nombre del Referido <span class="req">*</span></label>
               <input type="text" name="nombre" required placeholder="Nombre completo">
+              <span class="field-error" data-msg="Ingresa el nombre del referido"></span>
             </div>
             <div class="form-group">
               <label>Email del Referido <span class="req">*</span></label>
               <input type="email" name="email" required placeholder="correo@ejemplo.com">
+              <span class="field-error" data-msg="Ingresa un correo valido" data-msg-empty="Ingresa el correo del referido"></span>
             </div>
           </div>
           <div class="form-row full">
@@ -750,6 +769,7 @@
             <div class="form-group">
               <label>Pais <span class="req">*</span></label>
               <input type="text" name="pais" required placeholder="Colombia">
+              <span class="field-error" data-msg="Ingresa el pais"></span>
             </div>
           </div>
           <div class="form-row full">
@@ -779,6 +799,7 @@
                 <option>Radikal Food Club</option>
                 <option>Green Hub</option>
               </select>
+              <span class="field-error" data-msg="Selecciona una empresa"></span>
             </div>
             <div class="form-group">
               <label>Tipo de Referido <span class="req">*</span></label>
@@ -791,12 +812,14 @@
                 <option>Prensa</option>
                 <option>Otro</option>
               </select>
+              <span class="field-error" data-msg="Selecciona el tipo de referido"></span>
             </div>
           </div>
           <div class="form-row full">
             <div class="form-group">
               <label>Objetivo / Que se busca lograr <span class="req">*</span></label>
               <textarea name="objetivo" required placeholder="Describe brevemente que oportunidad representa este referido..."></textarea>
+              <span class="field-error" data-msg="Describe el objetivo del referido"></span>
             </div>
           </div>
           <div class="form-row full">
@@ -815,6 +838,7 @@
                 <option value="">Cargando owners...</option>
               </select>
               <span class="field-hint">Se le notificara por email automaticamente</span>
+              <span class="field-error" data-msg="Selecciona un owner responsable"></span>
             </div>
           </div>
 
@@ -823,10 +847,12 @@
             <div class="form-group">
               <label>Nombre del registrador <span class="req">*</span></label>
               <input type="text" name="tuNombre" id="registrador-nombre" required placeholder="Tu nombre completo">
+              <span class="field-error" data-msg="Ingresa tu nombre"></span>
             </div>
             <div class="form-group">
               <label>Correo del registrador <span class="req">*</span></label>
               <input type="email" name="tuEmail" id="registrador-email" required placeholder="tu@email.com">
+              <span class="field-error" data-msg="Ingresa un correo valido" data-msg-empty="Ingresa tu correo"></span>
             </div>
           </div>
           <div class="form-row full">
@@ -897,12 +923,17 @@
       <!-- Estado: Formulario -->
       <div class="modal-body" id="update-form-state">
         <form id="form-update" onsubmit="return false;">
+          <div class="form-error-banner" id="update-validation-banner">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+            <span id="update-validation-msg">Completa los campos obligatorios marcados en rojo</span>
+          </div>
           <p class="form-section-title">Identificacion</p>
           <div class="form-row full">
             <div class="form-group">
               <label>ID del Referido <span class="req">*</span></label>
               <input type="number" name="referralId" required placeholder="Ej: 5" min="1">
               <span class="field-hint">Numero ID que aparece en el email de asignacion</span>
+              <span class="field-error" data-msg="Ingresa el ID del referido"></span>
             </div>
           </div>
 
@@ -919,6 +950,7 @@
                 <option>Cerrado-Perdido</option>
                 <option>Dormido</option>
               </select>
+              <span class="field-error" data-msg="Selecciona la nueva etapa"></span>
             </div>
             <div class="form-group">
               <label>Fecha de Follow-up</label>
@@ -935,6 +967,7 @@
             <div class="form-group">
               <label>Notas / Que paso <span class="req">*</span></label>
               <textarea name="notas" required placeholder="Describe el avance, resultado de la llamada, reunion, etc."></textarea>
+              <span class="field-error" data-msg="Describe que paso con este referido"></span>
             </div>
           </div>
           <div class="form-row full">
@@ -1139,27 +1172,83 @@
       });
     }
 
+    // ===== LIMPIAR ERROR EN TIEMPO REAL =====
+    document.addEventListener('input', function(e) {
+      var input = e.target;
+      if (input.classList.contains('error') && input.value.trim()) {
+        input.classList.remove('error');
+        var errorSpan = input.parentElement.querySelector('.field-error');
+        if (errorSpan) { errorSpan.classList.remove('visible'); errorSpan.textContent = ''; }
+      }
+    });
+    document.addEventListener('change', function(e) {
+      var input = e.target;
+      if (input.classList.contains('error') && input.value.trim()) {
+        input.classList.remove('error');
+        var errorSpan = input.parentElement.querySelector('.field-error');
+        if (errorSpan) { errorSpan.classList.remove('visible'); errorSpan.textContent = ''; }
+      }
+    });
+
     // ===== VALIDACION =====
+    var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
     function validateForm(formId) {
       var form = document.getElementById(formId);
       var inputs = form.querySelectorAll('[required]');
-      var valid = true;
+      var errorCount = 0;
+      var bannerPrefix = formId === 'form-new' ? 'new' : 'update';
+      var banner = document.getElementById(bannerPrefix + '-validation-banner');
+      var bannerMsg = document.getElementById(bannerPrefix + '-validation-msg');
+
+      // Limpiar errores previos
+      form.querySelectorAll('.field-error').forEach(function(el) {
+        el.classList.remove('visible');
+        el.textContent = '';
+      });
+      banner.classList.remove('visible');
+
       inputs.forEach(function(input) {
         input.classList.remove('error');
-        if (!input.value.trim()) {
-          input.classList.add('error');
-          valid = false;
+        var errorSpan = input.parentElement.querySelector('.field-error');
+        var isEmpty = !input.value.trim();
+        var isInvalidEmail = false;
+
+        if (input.type === 'email' && !isEmpty) {
+          isInvalidEmail = !emailRegex.test(input.value.trim());
         }
-        if (input.type === 'email' && input.value && !input.value.includes('@')) {
+
+        if (isEmpty || isInvalidEmail) {
           input.classList.add('error');
-          valid = false;
+          errorCount++;
+          if (errorSpan) {
+            var msg;
+            if (isEmpty) {
+              msg = errorSpan.getAttribute('data-msg-empty') || errorSpan.getAttribute('data-msg') || 'Este campo es obligatorio';
+            } else {
+              msg = errorSpan.getAttribute('data-msg') || 'Valor invalido';
+            }
+            errorSpan.textContent = msg;
+            errorSpan.classList.add('visible');
+          }
         }
       });
-      if (!valid) {
+
+      if (errorCount > 0) {
+        if (errorCount === 1) {
+          bannerMsg.textContent = 'Hay 1 campo obligatorio sin completar';
+        } else {
+          bannerMsg.textContent = 'Hay ' + errorCount + ' campos obligatorios sin completar';
+        }
+        banner.classList.add('visible');
         var firstError = form.querySelector('.error');
-        if (firstError) firstError.focus();
+        if (firstError) {
+          firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          firstError.focus();
+        }
+        return false;
       }
-      return valid;
+      return true;
     }
 
     // ===== SUBMIT: NUEVO REFERIDO =====
