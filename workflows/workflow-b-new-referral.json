@@ -178,27 +178,6 @@
           "name": "Gmail account"
         }
       }
-    },
-    {
-      "parameters": {
-        "sendTo": "={{ $('Process Data').first().json.body.email }}",
-        "subject": "=Green Hub - Hemos recibido tu referencia",
-        "message": "=<div style='font-family:Arial,sans-serif;max-width:620px;margin:0 auto;border:1px solid #e0e0e0;border-radius:12px;overflow:hidden'><div style='background:{{ $('Process Data').first().json.mensajeEmpresa.color }};color:#fff;padding:28px 24px;text-align:center'><h1 style='margin:0;font-size:22px;font-weight:bold'>{{ $('Process Data').first().json.mensajeEmpresa.titulo }}</h1><p style='margin:10px 0 0;opacity:0.9;font-size:14px;font-style:italic;letter-spacing:0.5px'>{{ $('Process Data').first().json.mensajeEmpresa.slogan }}</p><p style='margin:8px 0 0;opacity:0.6;font-size:11px'>Ecosistema Green Hub</p></div><div style='padding:28px 24px'><p style='font-size:14px;color:#555;line-height:1.8;margin:0 0 16px'>{{ $('Process Data').first().json.mensajeEmpresa.intro }}</p><div style='background:linear-gradient(135deg,#f0faf5,#e8f5e9);border-left:4px solid {{ $('Process Data').first().json.mensajeEmpresa.color }};padding:18px 20px;margin:20px 0;border-radius:0 10px 10px 0'><p style='margin:0;font-size:14px;color:#1a3a2a;line-height:1.7'>{{ $('Process Data').first().json.mensajeEmpresa.destaque }}</p></div><p style='font-size:14px;color:#555;line-height:1.8;margin:16px 0'>{{ $('Process Data').first().json.mensajeEmpresa.cierre }}</p><div style='background:#fafafa;border-radius:8px;padding:16px;margin:24px 0;border:1px solid #eee'><p style='margin:0 0 8px;font-size:13px;color:#888;font-weight:bold;text-transform:uppercase;letter-spacing:0.5px'>Proximos pasos</p><table style='width:100%;font-size:13px;color:#555'><tr><td style='padding:6px 0;vertical-align:top;width:30px'><span style='background:{{ $('Process Data').first().json.mensajeEmpresa.color }};color:#fff;border-radius:50%;width:22px;height:22px;display:inline-block;text-align:center;line-height:22px;font-size:11px;font-weight:bold'>1</span></td><td style='padding:6px 8px'>Un miembro de nuestro equipo te contactara pronto para <strong>escucharte</strong></td></tr><tr><td style='padding:6px 0;vertical-align:top'><span style='background:{{ $('Process Data').first().json.mensajeEmpresa.color }};color:#fff;border-radius:50%;width:22px;height:22px;display:inline-block;text-align:center;line-height:22px;font-size:11px;font-weight:bold'>2</span></td><td style='padding:6px 8px'>Conversaremos sobre tus necesidades y como podemos <strong>crear valor juntos</strong></td></tr><tr><td style='padding:6px 0;vertical-align:top'><span style='background:{{ $('Process Data').first().json.mensajeEmpresa.color }};color:#fff;border-radius:50%;width:22px;height:22px;display:inline-block;text-align:center;line-height:22px;font-size:11px;font-weight:bold'>3</span></td><td style='padding:6px 8px'>Disenaremos juntos la <strong>mejor solucion</strong> para ti</td></tr></table></div><p style='font-size:13px;color:#888;margin:20px 0 4px'>Si tienes alguna pregunta, responde directamente a este correo.</p><p style='font-size:14px;color:#555;margin:16px 0 0'>Un saludo,</p><p style='font-size:15px;color:{{ $('Process Data').first().json.mensajeEmpresa.color }};font-weight:bold;margin:4px 0 0'>Equipo {{ $('Process Data').first().json.mensajeEmpresa.titulo }}</p></div><div style='padding:12px 24px;background:{{ $('Process Data').first().json.mensajeEmpresa.color }};text-align:center'><p style='margin:0;font-size:11px;color:rgba(255,255,255,0.8);letter-spacing:0.3px'>{{ $('Process Data').first().json.mensajeEmpresa.prueba_social }}</p></div><div style='padding:10px 24px;background:#f5f5f5;border-top:1px solid #e0e0e0;text-align:center;border-radius:0 0 12px 12px'><p style='margin:0;font-size:10px;color:#bbb'>Green Hub - Grupo Empresarial | Cafe de Especialidad | Sostenibilidad</p></div></div>",
-        "options": {}
-      },
-      "name": "Email Referido",
-      "type": "n8n-nodes-base.gmail",
-      "typeVersion": 2.1,
-      "position": [
-        1580,
-        600
-      ],
-      "credentials": {
-        "gmailOAuth2": {
-          "id": "34ae23XNAsWrUf5I",
-          "name": "Gmail account"
-        }
-      }
     }
   ],
   "connections": {
@@ -278,11 +257,6 @@
           },
           {
             "node": "Email Registrador",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Email Referido",
             "type": "main",
             "index": 0
           }

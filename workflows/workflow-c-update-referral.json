@@ -182,21 +182,6 @@
     },
     {
       "parameters": {
-        "sendTo": "={{ $('Find and Process').first().json.referidoEmail }}",
-        "subject": "=Green Hub - Actualizacion sobre tu proceso",
-        "message": "=<div style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto'><div style='background:#123840;color:#fff;padding:20px 24px;border-radius:12px 12px 0 0'><h1 style='margin:0;font-size:18px'>Actualizacion de tu Proceso</h1></div><div style='padding:24px'><p style='font-size:15px;color:#333;margin:0 0 16px'>Hola {{ $('Find and Process').first().json.referidoNombre }},</p><p style='font-size:14px;color:#555;line-height:1.7'>Queremos informarte que hay novedades en tu proceso con <strong>Green Hub</strong>.</p><div style='background:#f0faf5;border-left:4px solid #47a179;padding:16px;margin:20px 0;border-radius:0 8px 8px 0'><p style='margin:0;font-size:15px;color:#123840'><strong>Estado actual:</strong> {{ $('Find and Process').first().json.newEtapa }}</p></div><p style='font-size:14px;color:#555;line-height:1.7'>Nuestro equipo sigue trabajando para ofrecerte la mejor experiencia. Si tienes alguna pregunta o necesitas informacion adicional, responde directamente a este correo.</p><p style='font-size:14px;color:#555;margin-top:20px'>Cordialmente,</p><p style='font-size:14px;color:#123840;font-weight:bold'>Equipo Green Hub</p></div><div style='padding:16px 24px;background:#f5f5f5;border-radius:0 0 12px 12px;text-align:center'><p style='margin:0;font-size:11px;color:#999'>Green Hub - Grupo Empresarial</p></div></div>",
-        "options": {}
-      },
-      "name": "Email Referido",
-      "type": "n8n-nodes-base.gmail",
-      "typeVersion": 2.1,
-      "position": [2460, 300],
-      "credentials": {
-        "gmailOAuth2": { "id": "34ae23XNAsWrUf5I", "name": "Gmail account" }
-      }
-    },
-    {
-      "parameters": {
         "respondWith": "json",
         "responseBody": "={{ JSON.stringify({ success: false, error: $json.error || 'Referido no encontrado' }) }}",
         "options": {
@@ -230,7 +215,7 @@
     "Append to Archive": { "main": [[{ "node": "Delete from Referrals", "type": "main", "index": 0 }]] },
     "Delete from Referrals": { "main": [[{ "node": "Respond OK", "type": "main", "index": 0 }]] },
     "Respond OK": { "main": [[{ "node": "Stage Changed?", "type": "main", "index": 0 }]] },
-    "Stage Changed?": { "main": [[{ "node": "Email Registrador", "type": "main", "index": 0 }, { "node": "Email Referido", "type": "main", "index": 0 }], []] }
+    "Stage Changed?": { "main": [[{ "node": "Email Registrador", "type": "main", "index": 0 }], []] }
   },
   "settings": { "executionOrder": "v1" }
 }
