@@ -38,7 +38,7 @@
       font-weight: 400;
       color: var(--negro);
       background: var(--blanco);
-      line-height: 1.4;
+      line-height: 1.6;
       min-height: 100vh;
       overflow-x: hidden;
     }
@@ -75,13 +75,22 @@
     .hero::before {
       content: ''; position: absolute; top: -40%; left: -30%; width: 160%; height: 180%;
       background:
-        radial-gradient(ellipse at 20% 40%, rgba(107,209,161,.12) 0%, transparent 50%),
-        radial-gradient(ellipse at 80% 60%, rgba(71,161,121,.10) 0%, transparent 45%),
-        radial-gradient(ellipse at 50% 100%, rgba(37,90,91,.25) 0%, transparent 40%);
+        radial-gradient(ellipse at 20% 40%, rgba(107,209,161,.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 60%, rgba(71,161,121,.12) 0%, transparent 45%),
+        radial-gradient(ellipse at 50% 100%, rgba(37,90,91,.28) 0%, transparent 40%),
+        radial-gradient(ellipse at 65% 20%, rgba(107,209,161,.06) 0%, transparent 35%);
       pointer-events: none;
     }
     .hero::after {
-      content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+      content: ''; position: absolute; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");
+      background-repeat: repeat;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .hero-content::after {
+      content: ''; position: absolute; bottom: -5rem; left: 50%; transform: translateX(-50%);
+      width: 60%; height: 1px;
       background: linear-gradient(90deg, transparent, rgba(107,209,161,.3), transparent);
     }
     .hero-content { position: relative; z-index: 1; max-width: 780px; margin: 0 auto; }
@@ -405,6 +414,92 @@
     .spinner { width: 3rem; height: 3rem; border: 3px solid var(--borde-suave); border-top-color: var(--verde-principal); border-radius: 50%; animation: spin .8s linear infinite; margin-bottom: 1.5rem; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
+    /* ===== ANIMACIONES DE ENTRADA ===== */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in { opacity: 0; animation: fadeInUp .7s var(--ease) forwards; }
+    .fade-in-d1 { animation-delay: .1s; }
+    .fade-in-d2 { animation-delay: .25s; }
+    .fade-in-d3 { animation-delay: .4s; }
+    .fade-in-d4 { animation-delay: .55s; }
+
+    /* ===== PREFERS REDUCED MOTION ===== */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      .fade-in { opacity: 1; }
+      html { scroll-behavior: auto; }
+    }
+
+    /* ===== FOCUS STATES ===== */
+    .btn:focus-visible,
+    .btn-submit:focus-visible,
+    .btn-cancel:focus-visible,
+    .modal-close:focus-visible {
+      outline: 2px solid var(--verde-claro);
+      outline-offset: 3px;
+    }
+    .form-group input:focus-visible,
+    .form-group select:focus-visible,
+    .form-group textarea:focus-visible {
+      outline: none;
+      border-color: var(--verde-principal);
+      box-shadow: 0 0 0 3px rgba(71,161,121,.18);
+    }
+
+    /* ===== CONECTORES ENTRE PASOS ===== */
+    .process-steps { position: relative; }
+    .process-step { position: relative; }
+    @media (min-width: 768px) {
+      .process-step:not(:last-child)::after {
+        content: '';
+        position: absolute;
+        top: 2rem;
+        right: -1rem;
+        width: 2rem;
+        height: 2px;
+        background: linear-gradient(90deg, rgba(107,209,161,.35), rgba(107,209,161,.1));
+      }
+    }
+
+    /* ===== LOADING SKELETON ===== */
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    .select-skeleton {
+      display: block;
+      height: 2.75rem;
+      border-radius: .75rem;
+      background: linear-gradient(90deg, var(--borde-suave) 25%, var(--fondo-suave) 50%, var(--borde-suave) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s ease infinite;
+    }
+
+    /* ===== MICRO-INTERACCIONES MEJORADAS ===== */
+    .stat-card { position: relative; overflow: hidden; }
+    .stat-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--verde-principal), var(--verde-claro));
+      transform: scaleX(0); transform-origin: left;
+      transition: transform .4s var(--ease);
+    }
+    .stat-card:hover::before { transform: scaleX(1); }
+    .stat-card:hover .stat-icon { background: rgba(71,161,121,.18); }
+    .stat-icon { transition: background .3s ease; }
+
+    .action-card-new:hover .action-icon { background: rgba(107,209,161,.2); }
+    .action-card-update:hover .action-icon { background: rgba(18,56,64,.14); }
+    .action-icon { transition: background .3s ease; }
+
+    .footer-logos-grid img { transition: opacity .3s ease, transform .3s ease; }
+    .footer-logos-grid img:hover { opacity: .85; transform: scale(1.08); }
+
     /* ===== RESPONSIVE ===== */
     @media (max-width: 991px) {
       .hero { padding: 4.5rem 2rem 4rem; }
@@ -455,13 +550,13 @@
   <!-- ===== HERO ===== -->
   <section class="hero">
     <div class="hero-content">
-      <div class="hero-eyebrow">
+      <div class="hero-eyebrow fade-in">
         <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
         12 Empresas &middot; 1 Ecosistema
       </div>
-      <h1>Cada referido es una <span>oportunidad</span> que no puede perderse</h1>
-      <p class="hero-subtitle">Registra, asigna y da seguimiento a cada contacto del ecosistema Green Hub. Sin referidos olvidados, sin oportunidades perdidas.</p>
-      <div class="hero-cta-group">
+      <h1 class="fade-in fade-in-d1">Cada referido es una <span>oportunidad</span> que no puede perderse</h1>
+      <p class="hero-subtitle fade-in fade-in-d2">Registra, asigna y da seguimiento a cada contacto del ecosistema Green Hub. Sin referidos olvidados, sin oportunidades perdidas.</p>
+      <div class="hero-cta-group fade-in fade-in-d3">
         <button class="btn btn-primary btn-large" onclick="openModal('new')">
           Registrar nuevo referido
           <svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
@@ -471,7 +566,7 @@
           <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.996.996 0 000-1.41l-2.34-2.34a.996.996 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
         </button>
       </div>
-      <p class="hero-microcopy">Sin salir de esta pagina &middot; No requiere cuenta &middot; 2 minutos</p>
+      <p class="hero-microcopy fade-in fade-in-d4">Sin salir de esta pagina &middot; No requiere cuenta &middot; 2 minutos</p>
     </div>
   </section>
 
@@ -594,18 +689,18 @@
     <div class="footer-logos">
       <p class="footer-logos-label">Empresas del ecosistema</p>
       <div class="footer-logos-grid">
-        <img src="https://res.cloudinary.com/dkqocgknd/image/upload/v1770832576/referral-crm/logo-empresa-01.png" alt="Empresa 1">
-        <img src="https://res.cloudinary.com/dkqocgknd/image/upload/v1770832576/referral-crm/logo-empresa-02.png" alt="Empresa 2">
-        <img src="https://res.cloudinary.com/dkqocgknd/image/upload/v1770832577/referral-crm/logo-empresa-03.png" alt="Empresa 3">
-        <img src="https://res.cloudinary.com/dkqocgknd/image/upload/v1770832578/referral-crm/logo-empresa-04.png" alt="Empresa 4">
-        <img src="https://res.cloudinary.com/dkqocgknd/image/upload/v1770832579/referral-crm/logo-empresa-05.png" alt="Empresa 5">
-        <img src="https://res.cloudinary.com/dkqocgknd/image/upload/v1770832580/referral-crm/logo-empresa-06.png" alt="Empresa 6">
-        <img src="https://res.cloudinary.com/dkqocgknd/image/upload/v1770832580/referral-crm/logo-empresa-07.png" alt="Empresa 7">
-        <img src="https://res.cloudinary.com/dkqocgknd/image/upload/v1770832581/referral-crm/logo-empresa-08.png" alt="Empresa 8">
-        <img src="https://res.cloudinary.com/dkqocgknd/image/upload/v1770832582/referral-crm/logo-empresa-09.png" alt="Empresa 9">
-        <img src="https://res.cloudinary.com/dkqocgknd/image/upload/v1770832583/referral-crm/logo-empresa-10.png" alt="Empresa 10">
-        <img src="https://res.cloudinary.com/dkqocgknd/image/upload/v1770832584/referral-crm/logo-empresa-11.png" alt="Empresa 11">
-        <img src="https://res.cloudinary.com/dkqocgknd/image/upload/v1770832584/referral-crm/logo-empresa-12.jpg" alt="Empresa 12">
+        <img src="https://res.cloudinary.com/dkqocgknd/image/upload/v1770832576/referral-crm/logo-empresa-01.png" alt="La Hacienda La Palma y el Tucan">
+        <img src="https://res.cloudinary.com/dkqocgknd/image/upload/v1770832576/referral-crm/logo-empresa-02.png" alt="La Palma y el Tucan Hotel">
+        <img src="https://res.cloudinary.com/dkqocgknd/image/upload/v1770832577/referral-crm/logo-empresa-03.png" alt="Libertario Coffee Roasters">
+        <img src="https://res.cloudinary.com/dkqocgknd/image/upload/v1770832578/referral-crm/logo-empresa-04.png" alt="Futura Coffee Roasters">
+        <img src="https://res.cloudinary.com/dkqocgknd/image/upload/v1770832579/referral-crm/logo-empresa-05.png" alt="Equation Coffee">
+        <img src="https://res.cloudinary.com/dkqocgknd/image/upload/v1770832580/referral-crm/logo-empresa-06.png" alt="Delagua Coffee Paradise">
+        <img src="https://res.cloudinary.com/dkqocgknd/image/upload/v1770832580/referral-crm/logo-empresa-07.png" alt="Creativa Coffee District">
+        <img src="https://res.cloudinary.com/dkqocgknd/image/upload/v1770832581/referral-crm/logo-empresa-08.png" alt="Flying Pumas Coffee">
+        <img src="https://res.cloudinary.com/dkqocgknd/image/upload/v1770832582/referral-crm/logo-empresa-09.png" alt="Biodiversal">
+        <img src="https://res.cloudinary.com/dkqocgknd/image/upload/v1770832583/referral-crm/logo-empresa-10.png" alt="Cirkular Agro">
+        <img src="https://res.cloudinary.com/dkqocgknd/image/upload/v1770832584/referral-crm/logo-empresa-11.png" alt="The Coffee Hub">
+        <img src="https://res.cloudinary.com/dkqocgknd/image/upload/v1770832584/referral-crm/logo-empresa-12.jpg" alt="Radikal Food Club">
       </div>
     </div>
     <div class="footer-bottom">
@@ -715,7 +810,8 @@
           <div class="form-row full">
             <div class="form-group">
               <label>Owner / Responsable de seguimiento <span class="req">*</span></label>
-              <select name="ownerEmail" id="owner-select" required>
+              <span class="select-skeleton" id="owner-skeleton"></span>
+              <select name="ownerEmail" id="owner-select" required style="display:none;">
                 <option value="">Cargando owners...</option>
               </select>
               <span class="field-hint">Se le notificara por email automaticamente</span>
@@ -995,6 +1091,7 @@
 
     function populateOwners(owners) {
       var select = document.getElementById('owner-select');
+      var skeleton = document.getElementById('owner-skeleton');
       select.innerHTML = '<option value="">Seleccionar owner...</option>';
       owners.forEach(function(o) {
         var opt = document.createElement('option');
@@ -1002,6 +1099,8 @@
         opt.textContent = o.name + ' (' + o.email + ')';
         select.appendChild(opt);
       });
+      if (skeleton) skeleton.style.display = 'none';
+      select.style.display = '';
     }
 
     // ===== VALIDACION =====
